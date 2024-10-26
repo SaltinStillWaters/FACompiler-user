@@ -1,0 +1,16 @@
+to do (not immediate):
+
+resolve sheet names being too long
+
+extract info from canvas and write to sheets
+
+way to stop extension when accessing SAs
+
+decide whether to keep question id or not
+
+======================================================
+
+to do (next):
+
+refactor code because it is too slow
+    possibly use background script for caching
