@@ -1,11 +1,13 @@
 const extractQnAPromise = waitCanvasLoader("span.points.question_points")
 .then(() =>
 {
-    console.log('Canvas Loader loaded successfully');
     QnA = Extract.QnAInfo();
     console.log(QnA);
 })
-.catch(error => console.error(error));
+.catch(error => {
+    console.error(error)
+    throw error; //rethrow so Promise.all does not execute
+});
 
 Promise.all([initSheetPromise, extractQnAPromise])
 .then(() =>
@@ -404,15 +406,17 @@ function arrToStr(arr)
     return str;
 }
 
-function waitCanvasLoader(selector, interval = 100, maxWait = 10000)
+function waitCanvasLoader(selector, interval = 50, maxWait = 10000)
 {
     return new Promise((resolve, reject) =>
     {
         const checkExistence = setInterval(() =>
         {
             const element = document.querySelector(selector);
+            console.log("points holder found");
             if (!element)
             {
+                console.log("points holder not found")
                 clearInterval(checkExistence);
                 resolve();
             }

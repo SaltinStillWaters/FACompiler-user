@@ -7,7 +7,8 @@ const initSheetPromise = chrome.storage.local.get(G_KEYS)
         console.log("Local data matches current URL");
         return G_URL_INFO = localData;  //early return is needed. Returned value is not important
     }
-    
+    showToast("FACompiler is enabled. Disable it if this is an SA!");
+
     console.log('Local Data needs update. Updating...');
     G_URL_INFO = Extract.URLInfo();
     return chrome.storage.local.set(G_URL_INFO);
@@ -131,6 +132,7 @@ const initSheetPromise = chrome.storage.local.get(G_KEYS)
 .catch((error) =>
 {
     console.error(error);
+    throw error;
 });
 
 function initSheet(spreadsheetID, sheetName)
