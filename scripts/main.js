@@ -6,6 +6,7 @@ const extractQnAPromise = waitCanvasLoader("span.points.question_points")
 })
 .catch(error => {
     console.error(error)
+    showToast("Canvas Loader is DISABLED. Enable it, then reload");
     throw error; //rethrow so Promise.all does not execute
 });
 
