@@ -9,7 +9,6 @@
         "storage",
         "tabs",
         "scripting",
-        "identity",
         "background"
     ],
 
@@ -22,13 +21,9 @@
         "service_worker": "background.js"
     },
     
-    "oauth2": {
-        "client_id": "577911638183-f66qil193l8a5bjigkdev1b83vhaeh9a.apps.googleusercontent.com",
-        "scopes": [
-            "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/spreadsheets.readonly"
-        ]
-    },
+    "host_permissions": [
+        "https://sheets.googleapis.com/*"
+    ],
 
     "content_scripts": [
         {
