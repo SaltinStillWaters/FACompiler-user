@@ -56,10 +56,8 @@ async function getAccessToken() {
     iat: Math.floor(Date.now() / 1000)
   };
 
-  // Base64 encoding helpers
   const base64Encode = obj => btoa(JSON.stringify(obj)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 
-  // Create JWT
   const unsignedToken = `${base64Encode(header)}.${base64Encode(payload)}`;
   const signature = await crypto.subtle.sign(
     "RSASSA-PKCS1-v1_5",
@@ -69,7 +67,6 @@ async function getAccessToken() {
 
   const jwt = `${unsignedToken}.${btoa(String.fromCharCode(...new Uint8Array(signature))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')}`;
 
-  // Fetch Access Token
   const response = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -84,7 +81,6 @@ async function getAccessToken() {
   return cachedAccessToken;
 }
 
-// Import Private Key for Web Crypto
 async function importPrivateKey(pem) {
   const pemHeader = "-----BEGIN PRIVATE KEY-----";
   const pemFooter = "-----END PRIVATE KEY-----";
@@ -100,139 +96,122 @@ async function importPrivateKey(pem) {
 }
 
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) =>
-{
-  if (request.action === 'checkSheetExists')
-  {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'checkSheetExists') {
     getAccessToken()
-    .then(token => checkSheetExists(token, request.spreadsheetID, request.sheetName))
-    .then(exists => 
-    {
-      console.log(request.sheetName, ' exists: ', exists);
-      sendResponse({exists: exists});
-    })
-    .catch(error => 
-    {
-      console.log('Error in checking if sheet exists: ', error.message);
-      sendResponse({error: error.message});
-    });
+      .then(token => checkSheetExists(token, request.spreadsheetID, request.sheetName))
+      .then(exists => {
+
+        sendResponse({ exists: exists });
+      })
+      .catch(error => {
+
+        sendResponse({ error: error.message });
+      });
 
     return true;  //indicate asynchronous behaviour
   }
-  else if (request.action === 'createSheet')
-  {
+  else if (request.action === 'createSheet') {
     getAccessToken()
-    .then(token => createSheet(token, request.spreadsheetID, request.sheetName))
-    .then(response =>
-    {
-      console.log('Sheet created: ', response);
-      sendResponse({result: response});
-    })
-    .catch(error =>
-    {
-      console.log('Error in creating sheet: ', error.message);
-      sendResponse({error: error.message});
-    });
+      .then(token => createSheet(token, request.spreadsheetID, request.sheetName))
+      .then(response => {
+
+        sendResponse({ result: response });
+      })
+      .catch(error => {
+
+        sendResponse({ error: error.message });
+      });
 
     return true;
   }
-  else if (request.action === 'writeToSheet')
-  {
+  else if (request.action === 'writeToSheet') {
     getAccessToken()
-    .then(token => writeToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values))
-    .then(response =>
-    {
-      console.log(response);
-      sendResponse({result: response});
-    }
-    )
-    .catch(error =>
-    {
-      console.log('Error writing to sheet: ', error.message);
-      sendResponse({error: error.message});
-    }
-    )
-    return true;
-  }
-  else if (request.action === 'readFromSheet')
-  {
-    getAccessToken()
-    .then(token => readFromSheet(token, request.spreadsheetID, request.sheetName, request.range))
-    .then(response =>
-    {
-      console.log(response);
-      sendResponse({result: response});
-    }
-    )
-    .catch(error =>
-    {
-      console.log('Error reading from sheet: ', error.message);
-      sendResponse({error: error.message})
-    }
-    )
+      .then(token => writeToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values))
+      .then(response => {
 
-    return true;
-  }
-  else if (request.action === 'insertRowToSheet')
-  {
-    getAccessToken()
-    .then(token => 
-        getSheetID(token, request.spreadsheetID, request.sheetName)
-        .then(sheetId => insertRowToSheet(token, request.spreadsheetID, sheetId, request.rowIndex, request.rowData))
+        sendResponse({ result: response });
+      }
       )
-    .then(response =>
-    {
-      console.log(response);
-      sendResponse({result: response});
-    })
-    .catch(error =>
-    {
-      console.log('Error inserting row: ', error.message);
-      sendResponse({error: error.message});
-    })
+      .catch(error => {
+
+        sendResponse({ error: error.message });
+      }
+      )
+    return true;
+  }
+  else if (request.action === 'readFromSheet') {
+    getAccessToken()
+      .then(token => readFromSheet(token, request.spreadsheetID, request.sheetName, request.range))
+      .then(response => {
+
+        sendResponse({ result: response });
+      }
+      )
+      .catch(error => {
+
+        sendResponse({ error: error.message })
+      }
+      )
 
     return true;
   }
-}) 
+  else if (request.action === 'insertRowToSheet') {
+    getAccessToken()
+      .then(token =>
+        getSheetID(token, request.spreadsheetID, request.sheetName)
+          .then(sheetId => insertRowToSheet(token, request.spreadsheetID, sheetId, request.rowIndex, request.rowData))
+      )
+      .then(response => {
 
-function insertRowToSheet(token, spreadsheetID, sheetId, rowIndex, rowData)
-{
+        sendResponse({ result: response });
+      })
+      .catch(error => {
+
+        sendResponse({ error: error.message });
+      })
+
+    return true;
+  }
+})
+
+function insertRowToSheet(token, spreadsheetID, sheetId, rowIndex, rowData) {
   const requestBody =
   {
     requests:
-    [
-      {
-        insertDimension: 
+      [
         {
-          range:
+          insertDimension:
           {
-            sheetId: sheetId,
-            dimension: 'ROWS',
-            startIndex: rowIndex,
-            endIndex: rowIndex + 1
-          },
-          inheritFromBefore: false
-        }
-      },
-      {
-        updateCells:
-        {
-          rows:
-          [
+            range:
             {
-              values: rowData.map(cellData => ({userEnteredValue: {stringValue: cellData}}))
-            }
-          ],
-          fields: 'userEnteredValue',
-          start:
+              sheetId: sheetId,
+              dimension: 'ROWS',
+              startIndex: rowIndex,
+              endIndex: rowIndex + 1
+            },
+            inheritFromBefore: false
+          }
+        },
+        {
+          updateCells:
           {
-            sheetId: sheetId,
-            rowIndex: rowIndex,
-            columnIndex: 0
+            rows:
+              [
+                {
+                  values: rowData.map(cellData => ({ userEnteredValue: { stringValue: cellData } }))
+                }
+              ],
+            fields: 'userEnteredValue',
+            start:
+            {
+              sheetId: sheetId,
+              rowIndex: rowIndex,
+              columnIndex: 0
+            }
           }
         }
-      }
-    ]
+      ]
   };
 
   return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}:batchUpdate`,
@@ -246,20 +225,17 @@ function insertRowToSheet(token, spreadsheetID, sheetId, rowIndex, rowData)
       body: JSON.stringify(requestBody)
     })
     .then(response => response.json())
-    .then(data =>
-    {
-      if (data.error)
-      {
+    .then(data => {
+      if (data.error) {
         throw new Error(data.error.message);
       }
-      console.log(data);
+
       return data;
     }
     )
 }
 
-function getSheetID(token, spreadsheetID, sheetName)
-{
+function getSheetID(token, spreadsheetID, sheetName) {
   return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}?fields=sheets.properties`,
     {
       method: 'GET',
@@ -270,53 +246,46 @@ function getSheetID(token, spreadsheetID, sheetName)
       }
     })
     .then(response => response.json())
-    .then(data =>
-    {
+    .then(data => {
       let sheetId = null;
-      for (let i = 0; i < data.sheets.length; i++) 
-      {
-        if (data.sheets[i].properties.title === sheetName) 
-        {
+      for (let i = 0; i < data.sheets.length; i++) {
+        if (data.sheets[i].properties.title === sheetName) {
           sheetId = data.sheets[i].properties.sheetId;
           break;
         }
       }
 
-      console.log('sheet id: ', sheetId);
+
       return sheetId;
-      }
+    }
     )
 }
 
-function readFromSheet(token, spreadsheetID, sheetName, range)
-{
+function readFromSheet(token, spreadsheetID, sheetName, range) {
   return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}/values/${sheetName}!${range}`,
     {
       method: 'GET',
-      headers: 
+      headers:
       {
         'Authorization': `Bearer ${token}`,
         'Content-type': 'application/json'
       }
     }
   )
-  .then(response => response.json())
-  .then(data =>
-  {
-    if (data.error)
-    {
-      throw new Error(data.error.message);
-    }
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        throw new Error(data.error.message);
+      }
 
-    return data.values;
-  }
-  )
+      return data.values;
+    }
+    )
 
 }
 
-function writeToSheet(token, spreadsheetID, sheetName, range, values)
-{
-  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}/values/${sheetName}!${range}?valueInputOption=RAW`, 
+function writeToSheet(token, spreadsheetID, sheetName, range, values) {
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}/values/${sheetName}!${range}?valueInputOption=RAW`,
     {
       method: 'PUT',
       headers:
@@ -331,109 +300,79 @@ function writeToSheet(token, spreadsheetID, sheetName, range, values)
       )
     }
   )
-  .then(response => response.json())
-  .then(data => 
-  {
-    if (data.error)
-    {
-      throw new Error(data.error.message);
-    }
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        throw new Error(data.error.message);
+      }
 
-    return data;
-  }
-  )
+      return data;
+    }
+    )
 }
 
-function createSheet(token, spreadsheetID, sheetName)
-{
-  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}:batchUpdate`, 
+function createSheet(token, spreadsheetID, sheetName) {
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}:batchUpdate`,
     {
       method: 'POST',
-      headers: 
+      headers:
       {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(
         {
-          requests: 
-          [
-            {
-              addSheet: 
+          requests:
+            [
               {
-                properties:
+                addSheet:
                 {
-                  title: sheetName,
+                  properties:
+                  {
+                    title: sheetName,
+                  },
                 },
-              },
-            }],
+              }],
         }),
     })
-  .then(response => response.json())
-  .then(data =>
-    {
-      if (data.replies && data.replies[0].addSheet)
-      {
+    .then(response => response.json())
+    .then(data => {
+      if (data.replies && data.replies[0].addSheet) {
         return data.replies[0].addSheet.properties;
       }
-      else
-      {
+      else {
         throw new Error(`Failed to create new sheet: ${sheetName}. API Response: ${JSON.stringify(data)}`);
       }
     });
 }
 
-function checkSheetExists(token, spreadsheetID, sheetName)
-{
-  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}`, 
+function checkSheetExists(token, spreadsheetID, sheetName) {
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}`,
     {
       method: 'GET',
-      headers: 
+      headers:
       {
         'Authorization': `Bearer ${token}`
       }
     })
     .then(response => response.json())
-    .then(data =>
-      {
-        const sheets = data.sheets;
-        let exists = false;
+    .then(data => {
+      const sheets = data.sheets;
+      let exists = false;
 
-        for (let sheet of sheets)
-        {
-          let sheetTitle = sheet.properties.title;
+      for (let sheet of sheets) {
+        let sheetTitle = sheet.properties.title;
 
-          if (sheetTitle != sheetName)
-          {
-            console.log("sheet: ", sheetTitle, " !== sheetName: ", sheetName);
-          }
-          else
-          {
-            console.log("sheet: ", sheetTitle, " === sheetName: ", sheetName);
-            exists = true;
-            break;
-          }
+        if (sheetTitle != sheetName) {
+
         }
+        else {
 
-        return exists;
-      });
+          exists = true;
+          break;
+        }
+      }
+
+      return exists;
+    });
 }
-
-// //TOKEN
-// function getAccessToken()
-// {
-//   return new Promise((resolve, reject) =>
-//   {
-//     chrome.identity.getAccessToken({interactive: true}, function (token)
-//       {
-//         if (chrome.runtime.lastError || !token)
-//         {
-//             reject(chrome.runtime.lastError);
-//         }
-//         else
-//         {
-//             resolve(token);
-//         }
-//       });
-//   });
-// }

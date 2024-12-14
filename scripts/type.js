@@ -1,5 +1,4 @@
-class Type
-{
+class Type {
     static Question = Object.freeze(
         {
             CORRECT: 'CORRECT',
@@ -7,7 +6,7 @@ class Type
             WRONG: 'WRONG',
             NEW: 'NEW',
         });
-    
+
     static Input = Object.freeze(
         {
             RADIO: 'radio',

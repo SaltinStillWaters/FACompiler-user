@@ -1,320 +1,272 @@
 const extractQnAPromise = waitCanvasLoader("span.points.question_points")
-.then(() =>
-{
-    QnA = Extract.QnAInfo();
-    console.log(QnA);
-})
-.catch(error => {
-    console.error(error)
-    showToast("Canvas Loader is DISABLED. Enable it, then reload");
-    throw error; //rethrow so Promise.all does not execute
-});
+    .then(() => {
+        QnA = Extract.QnAInfo();
+
+    })
+    .catch(error => {
+
+        showToast("Canvas Loader is DISABLED. Enable it, then reload");
+        throw error;
+    });
 
 Promise.all([initSheetPromise, extractQnAPromise])
-.then(() =>
-{
-    let sheet = 
-    {
-        name: G_URL_INFO['FANumber'],
-        rowCountCell: 'I1',
-        rowCount: null,
-        questionColumn: 'A',
-        backEndChoiceColumn: 'E',
-        backEndChoicesRange: null,
-        backEndAnswerColumn: 'F',
-        backEndWrongsColumn: 'G',
-        firstQuestionMatchRow: null,
-        QnAMatchRow: null,
-        rowToInsert: null,
-        userAnswerColumn: 'C',
-        userWrongsColumn: 'D',
-    }
-
-    return sheet;
-})
-.then(sheet =>
-{// get rowCount
-    return Sheet.read(SPREADSHEET_ID, sheet.name, sheet.rowCountCell)
-    .then(result =>
-    {
-        sheet.rowCount = Number(result[0][0]);
-        return sheet;
-    })
-})
-.then(sheet =>
-{// check if question exists in sheet
-    if (sheet.rowCount === 0)
-    {
-        sheet.rowToInsert = G_ROW_START;
-        return sheet;
-    }
-    
-    const questionsRange = Utils.computeRange(sheet.questionColumn, G_ROW_START, sheet.rowCount);
-
-    return Sheet.read(SPREADSHEET_ID, sheet.name, questionsRange)
-    .then(output =>
-    {// get range all choices with matching questions if question is found
-        const first = binarySearch(output, QnA.question, SEARCH.FIRST);
-        const last = binarySearch(output, QnA.question, SEARCH.LAST);
-        
-        console.log(first, last)
-        if (!first.isFound)
+    .then(() => {
+        let sheet =
         {
-            sheet.rowToInsert = first.index + G_ROW_START;
-            if (QnA.question > output[first.index][0])
-            {
-                ++sheet.rowToInsert;
-            }
-        }
-        else
-        {
-            sheet.firstQuestionMatchRow = first.index + G_ROW_START;
-            sheet.backEndChoicesRange = Utils.computeRange(sheet.backEndChoiceColumn, G_ROW_START + first.index, last.index - first.index + 1);
+            name: G_URL_INFO['FANumber'],
+            rowCountCell: 'I1',
+            rowCount: null,
+            questionColumn: 'A',
+            backEndChoiceColumn: 'E',
+            backEndChoicesRange: null,
+            backEndAnswerColumn: 'F',
+            backEndWrongsColumn: 'G',
+            firstQuestionMatchRow: null,
+            QnAMatchRow: null,
+            rowToInsert: null,
+            userAnswerColumn: 'C',
+            userWrongsColumn: 'D',
         }
 
         return sheet;
     })
-})
-.then(sheet =>
-{// check if choices match
-    if (sheet.rowToInsert)  return sheet;
+    .then(sheet => {
+        return Sheet.read(SPREADSHEET_ID, sheet.name, sheet.rowCountCell)
+            .then(result => {
+                sheet.rowCount = Number(result[0][0]);
+                return sheet;
+            })
+    })
+    .then(sheet => {
+        if (sheet.rowCount === 0) {
+            sheet.rowToInsert = G_ROW_START;
+            return sheet;
+        }
 
-    console.log(sheet)
-    return Sheet.read(SPREADSHEET_ID, sheet.name, sheet.backEndChoicesRange)
-    .then(output =>
-    {// returns row in sheet where choices match (0-indexed)
-        console.log(output);
-        for (let x = 0; x < output.length; ++x)
-        {
-            const sheetChoice = backEndToStr(output[x][0]);
-            const canvasChoice = arrToStr(QnA.choices);
+        const questionsRange = Utils.computeRange(sheet.questionColumn, G_ROW_START, sheet.rowCount);
 
-            console.log(sheetChoice, canvasChoice);
-            
-            if (QnA.inputType === Type.Input.TEXT)
-            {
-                console.log('HERE ->TEXT');
-                //this means current sheet row is also Input.Text
-                if (sheetChoice === G_DELIMITER)
-                {
-                    sheet.QnAMatchRow = sheet.firstQuestionMatchRow + x;
-                    break;
-                }
+        return Sheet.read(SPREADSHEET_ID, sheet.name, questionsRange)
+            .then(output => {
+                const first = binarySearch(output, QnA.question, SEARCH.FIRST);
+                const last = binarySearch(output, QnA.question, SEARCH.LAST);
 
-                if (sheetChoice.length !== canvasChoice.length)
-                {
-                    continue;
-                }
-            }
-            else if (sheetChoice == canvasChoice)
-            {
-                console.log('HERE ->EQUAL');
-                sheet.QnAMatchRow = sheet.firstQuestionMatchRow + x;
-                break;
-            }
-            else if (sheetChoice.length == canvasChoice.length)
-            {
-                console.log('HERE ->EQUAL LENGTH');
-                const sheetArrChoice = backEndToArr(output[x][0]);
-                const canvasArrChoice = QnA.choices;
-                console.log(sheetArrChoice, canvasArrChoice);
-                let isMatch = true;
 
-                for (let y = 0; y < sheetArrChoice.length; ++y) 
-                {
-                    if (sheetArrChoice[y] == '') 
-                    {
-                        continue;
+                if (!first.isFound) {
+                    sheet.rowToInsert = first.index + G_ROW_START;
+                    if (QnA.question > output[first.index][0]) {
+                        ++sheet.rowToInsert;
                     }
+                }
+                else {
+                    sheet.firstQuestionMatchRow = first.index + G_ROW_START;
+                    sheet.backEndChoicesRange = Utils.computeRange(sheet.backEndChoiceColumn, G_ROW_START + first.index, last.index - first.index + 1);
+                }
 
-                    if (!canvasArrChoice.includes(sheetArrChoice[y])) 
-                    {
-                        isMatch = false;
+                return sheet;
+            })
+    })
+    .then(sheet => {
+        if (sheet.rowToInsert) return sheet;
+
+
+        return Sheet.read(SPREADSHEET_ID, sheet.name, sheet.backEndChoicesRange)
+            .then(output => {
+
+                for (let x = 0; x < output.length; ++x) {
+                    const sheetChoice = backEndToStr(output[x][0]);
+                    const canvasChoice = arrToStr(QnA.choices);
+
+
+
+                    if (QnA.inputType === Type.Input.TEXT) {
+
+
+                        if (sheetChoice === G_DELIMITER) {
+                            sheet.QnAMatchRow = sheet.firstQuestionMatchRow + x;
+                            break;
+                        }
+
+                        if (sheetChoice.length !== canvasChoice.length) {
+                            continue;
+                        }
+                    }
+                    else if (sheetChoice == canvasChoice) {
+
+                        sheet.QnAMatchRow = sheet.firstQuestionMatchRow + x;
                         break;
                     }
+                    else if (sheetChoice.length == canvasChoice.length) {
+
+                        const sheetArrChoice = backEndToArr(output[x][0]);
+                        const canvasArrChoice = QnA.choices;
+
+                        let isMatch = true;
+
+                        for (let y = 0; y < sheetArrChoice.length; ++y) {
+                            if (sheetArrChoice[y] == '') {
+                                continue;
+                            }
+
+                            if (!canvasArrChoice.includes(sheetArrChoice[y])) {
+                                isMatch = false;
+                                break;
+                            }
+                        }
+
+                        if (isMatch) {
+                            sheet.QnAMatchRow = sheet.firstQuestionMatchRow + x;
+                        }
+                    }
                 }
 
-                if (isMatch)
-                {
-                    sheet.QnAMatchRow = sheet.firstQuestionMatchRow + x;
+                if (!sheet.QnAMatchRow) {
+                    sheet.rowToInsert = sheet.firstQuestionMatchRow;
                 }
-            }
-        }
+                return sheet;
+            });
+    })
+    .then(sheet => {
 
-        if (!sheet.QnAMatchRow)
-        {
-            sheet.rowToInsert = sheet.firstQuestionMatchRow;
+
+        if (sheet.rowToInsert) {
+
+            return insertQuestion(sheet, QnA)
+                .then(showToast("Done!", "#8eff78"));
         }
-        return sheet;
+        else if (sheet.QnAMatchRow) {
+
+            return updateQnA(sheet, QnA)
+                .then(showToast("Done!", "#8eff78"));
+        }
+        else {
+            throw new Error('Unexpected sheet value. Cannot determine wether to update or insert QnA');
+        }
+    })
+    .catch((error) => {
+
     });
-})
-.then(sheet =>
-{
-    console.log('Final sheet info: ', sheet);
 
-    if (sheet.rowToInsert)
-    {
-        console.log('insertRow at Row (0-indexed): ' + sheet.rowToInsert);
-        return insertQuestion(sheet, QnA)
-        .then(showToast("Done!", "#8eff78"));
-    }
-    else if (sheet.QnAMatchRow)
-    {
-        console.log('QnA found at Row (0-indexed): ' + sheet.QnAMatchRow)
-        return updateQnA(sheet, QnA)
-        .then(showToast("Done!", "#8eff78"));
-    }
-    else
-    {
-        throw new Error('Unexpected sheet value. Cannot determine wether to update or insert QnA');
-    }
-})
-.catch((error) =>
-{
-    console.error(error);
-});
-
-function updateQnA(sheet, QnA)
-{
+function updateQnA(sheet, QnA) {
     const backEndAnswerRange = Utils.computeRange(sheet.backEndAnswerColumn, sheet.QnAMatchRow, 1);
     const userAnswerRange = Utils.computeRange(sheet.userAnswerColumn, sheet.QnAMatchRow, 1);
 
-    let status = 
+    let status =
     {
         done: false,
         sheetBackEndAnswer: null,
     };
 
-    console.log('updating')
+
     return Sheet.read(SPREADSHEET_ID, sheet.name, backEndAnswerRange)
-    .then(result =>
-    { //update for inputType === TEXT with correct answer
-        result = result[0][0];
-        status.sheetBackEndAnswer = result;
-        console.log('read: ', result)
-        if (result && QnA.inputType === Type.Input.TEXT && QnA.questionStatus === Type.Question.CORRECT)
-        {
-            updateDone = true;
-            console.log('passed')
-            const backEndAnwers = backEndToArr(result);
-            if (!backEndAnwers.includes(QnA.prevAnswer))
-            {
-                let newBackEndAnswers = result === G_DELIMITER ? '' : result;
-                newBackEndAnswers += QnA.prevAnswer + G_DELIMITER;
-                console.log('not included')
-                return Sheet.write(SPREADSHEET_ID, sheet.name, backEndAnswerRange, [[newBackEndAnswers]])
-                .then(() =>
-                {
-                    status.done = true;
-                    const newAnswer = backEndToStr(newBackEndAnswers, '\n\n');
-                    return Sheet.write(SPREADSHEET_ID, sheet.name, userAnswerRange, [[newAnswer]]);
-                })
-            }
-        }
-    })
-    .then(() =>
-    { //update for inputType === RADIO with correct answer
-        console.log(status);
-        if (status.done) return;
-        console.log('updating radio button')
-        if (QnA.inputType !== Type.Input.RADIO) return;
-        
-        if (status.sheetBackEndAnswer !== G_DELIMITER) 
-        {
-            status.done = true;
-            return;
-        }
-
-        if (QnA.questionStatus === Type.Question.CORRECT)
-        {
-            console.log('passed')
-            status.done = true;
-            return Sheet.write(SPREADSHEET_ID, sheet.name, backEndAnswerRange, [[QnA.prevAnswer]])
-            .then(() =>
-            {    
-                return Sheet.write(SPREADSHEET_ID, sheet.name, userAnswerRange, [[QnA.prevAnswer]]);
-            })
-        }
-    })
-    .then(() =>
-    { //update for inputType === RADIO with wrong answer
-        if (status.done) return;
-        console.log('updating radio with wrong answer')
-
-        if (QnA.inputType !== Type.Input.RADIO || status.sheetBackEndAnswer !== G_DELIMITER) return;
-        console.log('passed')
-        const backEndWrongsRange = Utils.computeRange(sheet.backEndWrongsColumn, sheet.QnAMatchRow, 1);
-        const userWrongsRange = Utils.computeRange(sheet.userWrongsColumn, sheet.QnAMatchRow, 1);
-
-        return Sheet.read(SPREADSHEET_ID, sheet.name, backEndWrongsRange)
-        .then(result =>
-        {
+        .then(result => {
             result = result[0][0];
-            console.log('read: ', result);
-            const backEndWrongs = backEndToArr(result);
+            status.sheetBackEndAnswer = result;
 
-            let newBackEndWrongs = result;
-            QnA.wrongs.forEach(wrong =>
-            {
-                if (wrong && !backEndWrongs.includes(wrong))
-                {
-                    newBackEndWrongs += wrong + G_DELIMITER;
+            if (result && QnA.inputType === Type.Input.TEXT && QnA.questionStatus === Type.Question.CORRECT) {
+                updateDone = true;
+
+                const backEndAnwers = backEndToArr(result);
+                if (!backEndAnwers.includes(QnA.prevAnswer)) {
+                    let newBackEndAnswers = result === G_DELIMITER ? '' : result;
+                    newBackEndAnswers += QnA.prevAnswer + G_DELIMITER;
+
+                    return Sheet.write(SPREADSHEET_ID, sheet.name, backEndAnswerRange, [[newBackEndAnswers]])
+                        .then(() => {
+                            status.done = true;
+                            const newAnswer = backEndToStr(newBackEndAnswers, '\n\n');
+                            return Sheet.write(SPREADSHEET_ID, sheet.name, userAnswerRange, [[newAnswer]]);
+                        })
                 }
-            });
-            console.log(newBackEndWrongs)
-
-            return Sheet.write(SPREADSHEET_ID, sheet.name, backEndWrongsRange, [[newBackEndWrongs]])
-            .then(() =>
-            {
-                status.done = true;
-                const newAnswer = backEndToStr(newBackEndWrongs, '\n\n');
-                return Sheet.write(SPREADSHEET_ID, sheet.name, userWrongsRange, [[newAnswer]]);
-            })
+            }
         })
-    })
-    .then(() =>
-    {
-        if (status.done) return;
-        console.log('Updating Text with wrong answer');
-        
-        if (QnA.inputType !== Type.Input.TEXT || QnA.questionStatus !== Type.Question.WRONG)
-        {
-            return;
-        }
+        .then(() => {
 
-        const backEndWrongsRange = Utils.computeRange(sheet.backEndWrongsColumn, sheet.QnAMatchRow, 1);
-        const userWrongsRange = Utils.computeRange(sheet.userWrongsColumn, sheet.QnAMatchRow, 1);
+            if (status.done) return;
 
-        return Sheet.read(SPREADSHEET_ID, sheet.name, backEndWrongsRange)
-        .then(result =>
-        {
-            result = result[0][0];
-            console.log('read: ', result);
-            const backEndWrongs = backEndToArr(result);
+            if (QnA.inputType !== Type.Input.RADIO) return;
 
-            let newBackEndWrongs = result;
-            console.log(QnA, backEndWrongs);
-
-            if (!backEndWrongs.includes(QnA.prevAnswer))
-            {
-                newBackEndWrongs += QnA.prevAnswer + G_DELIMITER;
+            if (status.sheetBackEndAnswer !== G_DELIMITER) {
+                status.done = true;
+                return;
             }
 
-            console.log(newBackEndWrongs)
+            if (QnA.questionStatus === Type.Question.CORRECT) {
 
-            return Sheet.write(SPREADSHEET_ID, sheet.name, backEndWrongsRange, [[newBackEndWrongs]])
-            .then(() =>
-            {
                 status.done = true;
-                const newAnswer = backEndToStr(newBackEndWrongs, '\n\n');
-                return Sheet.write(SPREADSHEET_ID, sheet.name, userWrongsRange, [[newAnswer]]);
-            })
+                return Sheet.write(SPREADSHEET_ID, sheet.name, backEndAnswerRange, [[QnA.prevAnswer]])
+                    .then(() => {
+                        return Sheet.write(SPREADSHEET_ID, sheet.name, userAnswerRange, [[QnA.prevAnswer]]);
+                    })
+            }
         })
-    });
+        .then(() => {
+            if (status.done) return;
+
+
+            if (QnA.inputType !== Type.Input.RADIO || status.sheetBackEndAnswer !== G_DELIMITER) return;
+
+            const backEndWrongsRange = Utils.computeRange(sheet.backEndWrongsColumn, sheet.QnAMatchRow, 1);
+            const userWrongsRange = Utils.computeRange(sheet.userWrongsColumn, sheet.QnAMatchRow, 1);
+
+            return Sheet.read(SPREADSHEET_ID, sheet.name, backEndWrongsRange)
+                .then(result => {
+                    result = result[0][0];
+
+                    const backEndWrongs = backEndToArr(result);
+
+                    let newBackEndWrongs = result;
+                    QnA.wrongs.forEach(wrong => {
+                        if (wrong && !backEndWrongs.includes(wrong)) {
+                            newBackEndWrongs += wrong + G_DELIMITER;
+                        }
+                    });
+
+
+                    return Sheet.write(SPREADSHEET_ID, sheet.name, backEndWrongsRange, [[newBackEndWrongs]])
+                        .then(() => {
+                            status.done = true;
+                            const newAnswer = backEndToStr(newBackEndWrongs, '\n\n');
+                            return Sheet.write(SPREADSHEET_ID, sheet.name, userWrongsRange, [[newAnswer]]);
+                        })
+                })
+        })
+        .then(() => {
+            if (status.done) return;
+
+
+            if (QnA.inputType !== Type.Input.TEXT || QnA.questionStatus !== Type.Question.WRONG) {
+                return;
+            }
+
+            const backEndWrongsRange = Utils.computeRange(sheet.backEndWrongsColumn, sheet.QnAMatchRow, 1);
+            const userWrongsRange = Utils.computeRange(sheet.userWrongsColumn, sheet.QnAMatchRow, 1);
+
+            return Sheet.read(SPREADSHEET_ID, sheet.name, backEndWrongsRange)
+                .then(result => {
+                    result = result[0][0];
+
+                    const backEndWrongs = backEndToArr(result);
+
+                    let newBackEndWrongs = result;
+
+
+                    if (!backEndWrongs.includes(QnA.prevAnswer)) {
+                        newBackEndWrongs += QnA.prevAnswer + G_DELIMITER;
+                    }
+
+
+
+                    return Sheet.write(SPREADSHEET_ID, sheet.name, backEndWrongsRange, [[newBackEndWrongs]])
+                        .then(() => {
+                            status.done = true;
+                            const newAnswer = backEndToStr(newBackEndWrongs, '\n\n');
+                            return Sheet.write(SPREADSHEET_ID, sheet.name, userWrongsRange, [[newAnswer]]);
+                        })
+                })
+        });
 }
 
-function insertQuestion(sheet, QnA)
-{
+function insertQuestion(sheet, QnA) {
     const answer = QnA.questionStatus === Type.Question.CORRECT ? QnA.prevAnswer : null;
     const userChoice = arrToUser(QnA.choices);
     const userWrongs = arrToUser(QnA.wrongs);
@@ -327,26 +279,21 @@ function insertQuestion(sheet, QnA)
     let backEndWrongs = arrToBackEnd(QnA.wrongs);
     backEndWrongs = backEndWrongs ? backEndWrongs : G_DELIMITER;
 
-    //user side
+
     return Sheet.insertRow(SPREADSHEET_ID, sheet.name, sheet.rowToInsert, [QnA.question, userChoice, answer, userWrongs, backEndChoice, backEndAnswer, backEndWrongs])
-    .then(() =>
-    {
-        return Sheet.write(SPREADSHEET_ID, sheet.name, sheet.rowCountCell, [[sheet.rowCount + 1]]);
-    });
+        .then(() => {
+            return Sheet.write(SPREADSHEET_ID, sheet.name, sheet.rowCountCell, [[sheet.rowCount + 1]]);
+        });
 }
 
-function arrToUser(arr)
-{
-    if (!Array.isArray(arr))
-    {
+function arrToUser(arr) {
+    if (!Array.isArray(arr)) {
         return arr;
     }
 
     let str = '';
-    arr.forEach(x =>
-    {
-        if (x)
-        {
+    arr.forEach(x => {
+        if (x) {
             str += x + ".\n\n\n";
         }
     });
@@ -354,37 +301,29 @@ function arrToUser(arr)
     return str.trimEnd();
 }
 
-function arrToBackEnd(arr)
-{
-    if (!Array.isArray(arr))
-    {
+function arrToBackEnd(arr) {
+    if (!Array.isArray(arr)) {
         return arr;
     }
 
     let str = '';
-    arr.forEach(x =>
-    {
-        if (x)
-        {
+    arr.forEach(x => {
+        if (x) {
             str += x + G_DELIMITER;
         }
     });
 
     return str;
 }
-function backEndToArr(backEnd)
-{
+function backEndToArr(backEnd) {
     return backEnd.split(G_DELIMITER);
 }
 
-function backEndToStr(backEnd, delimiter = '')
-{
-    if (!backEnd)
-    {
+function backEndToStr(backEnd, delimiter = '') {
+    if (!backEnd) {
         return '';
     }
-    else if (backEnd === G_DELIMITER)
-    {
+    else if (backEnd === G_DELIMITER) {
         return backEnd;
     }
 
@@ -392,15 +331,11 @@ function backEndToStr(backEnd, delimiter = '')
     return backEnd.replace(new RegExp(escapedDelimiter, 'g'), delimiter);
 }
 
-function arrToStr(arr)
-{
+function arrToStr(arr) {
     let str = '';
-    if (arr)
-    {
-        arr.forEach(x =>
-        {
-            if (x)
-            {
+    if (arr) {
+        arr.forEach(x => {
+            if (x) {
                 str += x;
             }
         });
@@ -409,26 +344,21 @@ function arrToStr(arr)
     return str;
 }
 
-function waitCanvasLoader(selector, interval = 50, maxWait = 10000)
-{
-    return new Promise((resolve, reject) =>
-    {
-        const checkExistence = setInterval(() =>
-        {
+function waitCanvasLoader(selector, interval = 50, maxWait = 10000) {
+    return new Promise((resolve, reject) => {
+        const checkExistence = setInterval(() => {
             const element = document.querySelector(selector);
-            console.log("points holder found");
-            if (!element)
-            {
-                console.log("points holder not found")
+
+            if (!element) {
+
                 clearInterval(checkExistence);
                 resolve();
             }
         }, interval);
-        
-        setTimeout(() =>
-        {
+
+        setTimeout(() => {
             clearInterval(checkExistence);
-            reject(new Error('Max wait of ' + maxWait/1000 + ' seconds for Canvas Loader exceeded'));
+            reject(new Error('Max wait of ' + maxWait / 1000 + ' seconds for Canvas Loader exceeded'));
         }, maxWait);
     });
 }

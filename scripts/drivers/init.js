@@ -1,141 +1,116 @@
 const initSheetPromise = chrome.storage.local.get(G_KEYS)
-.then(localData =>
-{// get/update local storage
-    console.log("Fetched local data");
-    if (localData['currURL'] === Extract.cleanedURL())
-    {
-        console.log("Local data matches current URL");
-        return G_URL_INFO = localData;  //early return is needed. Returned value is not important
-    }
-    showToast("FACompiler is enabled. Disable it if this is an SA!");
+    .then(localData => {
 
-    console.log('Local Data needs update. Updating...');
-    G_URL_INFO = Extract.URLInfo();
-    return chrome.storage.local.set(G_URL_INFO);
-})
-.then(() =>
-{// get row count of Info Sheet
-    console.log("Local data is up to date");
+        if (localData['currURL'] === Extract.cleanedURL()) {
 
-    console.log("Reading row count from: 'Info Sheet'...");
-    return Sheet.read(SPREADSHEET_ID, G_INFO_SHEET.name, G_INFO_SHEET.rowCountCell)
-    .then(result =>
-    {
-        console.log("Info sheet row count:", Number(result[0][0]));
-        return Number(result[0][0]);
+            return G_URL_INFO = localData;
+        }
+        showToast("FACompiler is enabled. Disable it if this is an SA!");
+
+
+        G_URL_INFO = Extract.URLInfo();
+        return chrome.storage.local.set(G_URL_INFO);
     })
-})
-.then(rowCount =>
-{// init info var to be used by subsequent API calls
-    let info = 
-    {
-        createSheet: true,
-        indexToInsert: null,
-        rowCount: rowCount,
-        range: null,
-    };
+    .then(() => {
 
-    if (rowCount === 0)
-    {// no need to search where to insert. Just insert at 1st row
-        info.indexToInsert = 1;
-    }
-    
-    return info;
-})
-.then(info =>
-{// generate table to know which row to insert
-    if (info.rowCount === 0)
-    {// no need to search where to insert. Just insert at 1st row
+
+
+        return Sheet.read(SPREADSHEET_ID, G_INFO_SHEET.name, G_INFO_SHEET.rowCountCell)
+            .then(result => {
+
+                return Number(result[0][0]);
+            })
+    })
+    .then(rowCount => {
+        let info =
+        {
+            createSheet: true,
+            indexToInsert: null,
+            rowCount: rowCount,
+            range: null,
+        };
+
+        if (rowCount === 0) {
+            info.indexToInsert = 1;
+        }
+
         return info;
-    }
+    })
+    .then(info => {
+        if (info.rowCount === 0) {
+            return info;
+        }
 
-    range = Utils.computeRange(G_INFO_SHEET.tableColumn, G_ROW_START, info.rowCount);
-    
-    return Sheet.read(SPREADSHEET_ID, G_INFO_SHEET.name, range)
-    .then(result =>
-    {
-        console.log('Extracting table from Info Sheet...');
-        result = result.map(row =>
-            row.map(val =>
-                {
-                    num = parseInt(val);
-                    return isNaN(num) ? val : num;
+        range = Utils.computeRange(G_INFO_SHEET.tableColumn, G_ROW_START, info.rowCount);
+
+        return Sheet.read(SPREADSHEET_ID, G_INFO_SHEET.name, range)
+            .then(result => {
+
+                result = result.map(row =>
+                    row.map(val => {
+                        num = parseInt(val);
+                        return isNaN(num) ? val : num;
+                    })
+                );
+
+
+                info.table = result;
+                return info;
+            });
+    })
+    .then(info => {
+        if (info.rowCount === 0) {
+            return info;
+        }
+
+        const key = Number(G_URL_INFO['FAID']);
+        let index = binarySearch(info.table, key).index;
+
+
+        if (info.table[index][0] === key) {
+            info.createSheet = false;
+        }
+        else if (key > info.table[index][0]) {
+            index++;
+        }
+
+        info.indexToInsert = index + G_ROW_START;
+        return info;
+    })
+    .then(info => {
+        if (info.createSheet) {
+
+
+
+            return Sheet.create(SPREADSHEET_ID, G_URL_INFO["FANumber"])
+                .then(newSheet => {
+                    if (newSheet) {
+
+                        return initSheet(SPREADSHEET_ID, G_URL_INFO['FANumber']);
+                    }
+                    else {
+                        return Promise.reject('Failed to create new Sheet: ' + G_URL_INFO['FANumber']);
+                    }
                 })
-            );
-            
-        console.log("Table extracted:", result);
-        info.table = result;
-        return info;
+                .then(initResponse => {
+                    if (initResponse) {
+
+                        return Sheet.insertRow(SPREADSHEET_ID, G_INFO_SHEET.name, info.indexToInsert, [G_URL_INFO['FAID'], G_URL_INFO['FANumber']])
+                            .then(() => {
+                                return Sheet.write(SPREADSHEET_ID, G_INFO_SHEET.name, G_INFO_SHEET.rowCountCell, [[info.rowCount + 1]]);
+                            });
+                    }
+                    else {
+                        return Promise.reject("Sheet: " + G_URL_INFO['FANumber'] + ' not initialized');
+                    }
+                })
+        }
+    })
+    .catch((error) => {
+
+        throw error;
     });
-})
-.then(info =>
-{// get index to insert at
-    if (info.rowCount === 0)
-    {// no need to search where to insert. Just insert at 1st row
-        return info;
-    }
 
-    const key = Number(G_URL_INFO['FAID']);
-    let index = binarySearch(info.table, key).index;
-
-    console.log({G_INFO_SHEET, index, key});
-    if (info.table[index][0] === key)
-    {
-        info.createSheet = false;
-    }
-    else if (key > info.table[index][0])
-    {
-        index++;
-    }
-
-    info.indexToInsert = index + G_ROW_START;
-    return info; 
-})
-.then(info =>
-{// creates sheet if it does not exist and initializes it
-    if (info.createSheet)
-    {
-        console.log(`Sheet ${G_URL_INFO['FAID']} does not exists`);
-        console.log(`Creating sheet ${G_URL_INFO['FAID']} with info: `, info, `...`);
-    
-        return Sheet.create(SPREADSHEET_ID, G_URL_INFO["FANumber"])
-        .then(newSheet =>
-        {
-            if (newSheet)
-            {
-                console.log(`Sheet: ${G_URL_INFO['FANumber']} created`);
-                return initSheet(SPREADSHEET_ID, G_URL_INFO['FANumber']);
-            }
-            else
-            {
-                return Promise.reject('Failed to create new Sheet: ' + G_URL_INFO['FANumber']);
-            }
-        })
-        .then(initResponse =>
-        {
-            if (initResponse)
-            {
-                console.log("Sheet: ", G_URL_INFO['FANumber'], ' initialized');
-                return Sheet.insertRow(SPREADSHEET_ID, G_INFO_SHEET.name, info.indexToInsert, [G_URL_INFO['FAID'], G_URL_INFO['FANumber']])
-                .then(() =>
-                {
-                    return Sheet.write(SPREADSHEET_ID, G_INFO_SHEET.name, G_INFO_SHEET.rowCountCell, [[info.rowCount + 1]]);
-                });
-            }
-            else
-            {
-                return Promise.reject("Sheet: " + G_URL_INFO['FANumber'] + ' not initialized');
-            }
-        })
-    }   
-})
-.catch((error) =>
-{
-    console.error(error);
-    throw error;
-});
-
-function initSheet(spreadsheetID, sheetName)
-{
-    return Sheet.write(spreadsheetID, sheetName, 'A1:I1', [['QUESTION', 'CHOICES', 'ANSWER', 'WRONG ANSWERS', 'BACKEND CHOICES', 'BACKEND ANSWER', 'BACKEND WRONGS', 'TOTAL QUESTIONS' , 0]]);
+function initSheet(spreadsheetID, sheetName) {
+    return Sheet.write(spreadsheetID, sheetName, 'A1:I1', [['QUESTION', 'CHOICES', 'ANSWER', 'WRONG ANSWERS', 'BACKEND CHOICES', 'BACKEND ANSWER', 'BACKEND WRONGS', 'TOTAL QUESTIONS', 0]]);
 }

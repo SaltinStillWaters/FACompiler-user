@@ -7,8 +7,7 @@ const G_KEYS = ['currURL', 'FANumber', 'courseID', 'FAID', 'questionID'];
  */
 const G_ROW_START = 1;
 
-const G_INFO_SHEET =
-{
+const G_INFO_SHEET = {
     name: 'Info',
     rowCountCell: 'E1',
     tableColumn: 'A',
@@ -17,8 +16,7 @@ const G_INFO_SHEET =
 
 let G_URL_INFO = null;
 
-let QnA =
-{
+let QnA = {
     questionStatus: null,
     question: null,
     inputType: null,
@@ -30,8 +28,8 @@ let QnA =
 const G_DELIMITER = '**EOF**';
 
 const SEARCH = Object.freeze(
-{
-    DEFAULT: 0,
-    FIRST: 1,
-    LAST: 2,
-});
+    {
+        DEFAULT: 0,
+        FIRST: 1,
+        LAST: 2,
+    });

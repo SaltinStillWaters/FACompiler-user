@@ -31,14 +31,14 @@ function showToast(message, bgColor = '#f57a7a', duration = 5000) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
   toast.style.backgroundColor = bgColor;
-  toast.style.visibility = 'visible'; 
-  toast.style.opacity = '1'; 
+  toast.style.visibility = 'visible';
+  toast.style.opacity = '1';
 
-  
+
   setTimeout(() => {
-    toast.style.opacity = '0'; 
+    toast.style.opacity = '0';
     setTimeout(() => {
-      toast.style.visibility = 'hidden'; 
-    }, 1000); 
+      toast.style.visibility = 'hidden';
+    }, 1000);
   }, duration);
 }
