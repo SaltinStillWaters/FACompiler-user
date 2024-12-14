@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "FACompiler",
     "version": "1.1.0",
-    "description": "An extension that works with Canvas Loader to extract FA questions and insert them in excel",
+    "description": "Uses service account. Suitable for multiple users",
 
     "permissions": [
         "activeTab",
