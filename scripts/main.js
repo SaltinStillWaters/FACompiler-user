@@ -154,12 +154,14 @@ Promise.all([initSheetPromise, extractQnAPromise])
     if (sheet.rowToInsert)
     {
         console.log('insertRow at Row (0-indexed): ' + sheet.rowToInsert);
-        return insertQuestion(sheet, QnA);
+        return insertQuestion(sheet, QnA)
+        .then(showToast("Done!", "#8eff78"));
     }
     else if (sheet.QnAMatchRow)
     {
         console.log('QnA found at Row (0-indexed): ' + sheet.QnAMatchRow)
-        return updateQnA(sheet, QnA);
+        return updateQnA(sheet, QnA)
+        .then(showToast("Done!", "#8eff78"));
     }
     else
     {
