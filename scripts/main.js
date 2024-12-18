@@ -126,17 +126,13 @@ Promise.all([initSheetPromise, extractQnAPromise])
             });
     })
     .then(sheet => {
-
-
         if (sheet.rowToInsert) {
-
             return insertQuestion(sheet, QnA)
-                .then(showToast("Done!", "#8eff78"));
+                .then(showToast("Done! Question inserted", "#8eff78"));
         }
         else if (sheet.QnAMatchRow) {
-
             return updateQnA(sheet, QnA)
-                .then(showToast("Done!", "#8eff78"));
+                .then(showToast("Done! Record updated", "#8eff78"));
         }
         else {
             throw new Error('Unexpected sheet value. Cannot determine wether to update or insert QnA');
