@@ -69,6 +69,7 @@ const initSheetPromise = chrome.storage.local.get(G_KEYS)
 
         if (info.table[index][0] === key) {
             info.createSheet = false;
+            info.indexFound = index;
         }
         else if (key > info.table[index][0]) {
             index++;
@@ -79,9 +80,6 @@ const initSheetPromise = chrome.storage.local.get(G_KEYS)
     })
     .then(info => {
         if (info.createSheet) {
-
-
-
             return Sheet.create(SPREADSHEET_ID, G_URL_INFO["FANumber"])
                 .then(newSheet => {
                     if (newSheet) {
@@ -104,6 +102,29 @@ const initSheetPromise = chrome.storage.local.get(G_KEYS)
                         return Promise.reject("Sheet: " + G_URL_INFO['FANumber'] + ' not initialized');
                     }
                 })
+        }
+        else //if not create sheet 
+        {
+            range = Utils.computeRange(G_INFO_SHEET.nameColumn, G_ROW_START + info.indexFound, 1);
+            console.log("column: ", G_INFO_SHEET.nameColumn);
+            console.log("found entry at range: ", range);
+    
+            return Sheet.read(SPREADSHEET_ID, G_INFO_SHEET.name, range)
+            .then(result =>
+            {
+                console.log('Extracting table from Info Sheet...');
+                result = result.map(row =>
+                    row.map(val =>
+                        {
+                            num = parseInt(val);
+                            return isNaN(num) ? val : num;
+                        })
+                    );
+                    
+                console.log("Name:", result[0][0]);
+                G_URL_INFO["FANumber"] = result[0][0];
+                return info;
+            });
         }
     })
     .catch((error) => {

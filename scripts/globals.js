@@ -11,6 +11,7 @@ const G_INFO_SHEET = {
     name: 'Info',
     rowCountCell: 'E1',
     tableColumn: 'A',
+    nameColumn: 'B',
     tableValues: null,
 }
 
