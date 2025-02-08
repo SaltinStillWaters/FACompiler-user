@@ -29,6 +29,10 @@
         {
             "matches": ["https://feu.instructure.com/courses/*/take*"],
             "js": ["scripts/globals.js", "scripts/type.js", "scripts/utils.js", "scripts/extract.js", "scripts/toast.js", "scripts/sheet.js", "scripts/drivers/init.js", "scripts/main.js"]
+        },
+        {
+            "matches": ["https://feu.instructure.com/courses/*"],
+            "js": ["api/main.js"]
         }
     ]
 }
