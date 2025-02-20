@@ -1,6 +1,6 @@
 const initSheetPromise = chrome.storage.local.get(G_KEYS)
     .then(localData => {
-
+    
         if (localData['currURL'] === Extract.cleanedURL()) {
 
             return G_URL_INFO = localData;
