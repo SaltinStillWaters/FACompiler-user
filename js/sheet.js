@@ -8,6 +8,7 @@ class Sheet {
                 sheetName: sheetName
             }, (response) => {
                 if (response.error) {
+                    console.error(response.error);
                     reject(response.error);
                 }
                 else {
@@ -24,6 +25,7 @@ class Sheet {
                 folder_id: folder_id
             }, (response) => {
                 if (response.error) {
+                    console.error(response.error);
                     reject(response.error);
                 }
                 else {
@@ -42,6 +44,7 @@ class Sheet {
                 rowData: rowData
             }, (response) => {
                 if (response.error) {
+                    console.error(response.error);
                     reject(response.error);
                 }
                 else {
@@ -59,6 +62,7 @@ class Sheet {
                 range: range
             }, (response) => {
                 if (response.error) {
+                    console.error(response.error);
                     reject(response.error);
                 }
                 else {
@@ -77,6 +81,7 @@ class Sheet {
                 values: values
             }, (response) => {
                 if (response.error) {
+                    console.error(response.error);
                     reject(response.error);
                 }
                 else {
@@ -86,6 +91,7 @@ class Sheet {
         });
     }
     static checkIfExists(spreadsheetID, sheetName) {
+        console.log('sheet started');
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage({
                 action: 'checkSheetExists',
@@ -93,6 +99,7 @@ class Sheet {
                 sheetName: sheetName
             }, (response) => {
                 if (response.error) {
+                    console.error(response.error);
                     reject(response.error);
                 }
                 else {

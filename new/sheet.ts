@@ -9,6 +9,7 @@ class Sheet {
                 },
                 (response: any) => {
                     if (response.error) {
+                        console.error(response.error);
                         reject(response.error);
                     } else {
                         resolve(response.result);
@@ -28,6 +29,7 @@ class Sheet {
                 },
                 (response: any) => {
                     if (response.error) {
+                        console.error(response.error);
                         reject(response.error);
                     } else {
                         resolve(response.result);
@@ -49,6 +51,7 @@ class Sheet {
                 },
                 (response: any) => {
                     if (response.error) {
+                        console.error(response.error);
                         reject(response.error);
                     } else {
                         resolve(response.result);
@@ -69,6 +72,7 @@ class Sheet {
                 },
                 (response: any) => {
                     if (response.error) {
+                        console.error(response.error);
                         reject(response.error);
                     } else {
                         resolve(response.result);
@@ -90,6 +94,7 @@ class Sheet {
                 },
                 (response: any) => {
                     if (response.error) {
+                        console.error(response.error);
                         reject(response.error);
                     } else {
                         resolve(response.result);
@@ -100,6 +105,7 @@ class Sheet {
     }
 
     static checkIfExists(spreadsheetID: any, sheetName: any): Promise<any> {
+        console.log('sheet started')
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage(
                 {
@@ -109,6 +115,7 @@ class Sheet {
                 },
                 (response: any) => {
                     if (response.error) {
+                        console.error(response.error);
                         reject(response.error);
                     } else {
                         resolve(response.exists);

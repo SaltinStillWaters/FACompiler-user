@@ -18,15 +18,9 @@ class SheetInfo {
         __classPrivateFieldSet(this, _a, count[0][0], "f", _SheetInfo_row_count);
     }
     static async extractTargetID() {
-        await this.setInfoSheetCount();
-        console.log(__classPrivateFieldGet(this, _a, "f", _SheetInfo_row_count));
-        let range = computeRange(this.COLUMNS['sheet_id'], __classPrivateFieldGet(this, _a, "f", _SheetInfo_row_count));
-        console.log(range);
-        let res = await Sheet.read(this.MAIN_SHEET_ID, __classPrivateFieldGet(this, _a, "f", _SheetInfo_info_sheet_name), range);
-        console.log('table extracted', res);
-        console.log('creating new spreadsheet');
-        const a = await (Sheet.createSpreadSheet('sub_spreadsheet', '1aOLKhpj0UCuSGbXg5rOcQK4Z0frScEbd'));
-        console.log('spreadsheet created');
+        console.log('started');
+        const test = await Sheet.create(_a.MAIN_SHEET_ID, 'main');
+        console.log('test: ', test);
         return;
     }
     static get infoSheetName() {

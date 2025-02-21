@@ -95,99 +95,133 @@ async function importPrivateKey(pem) {
   );
 }
 
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'checkSheetExists') {
-    getAccessToken()
-      .then(token => checkSheetExists(token, request.spreadsheetID, request.sheetName))
-      .then(exists => {
-
-        sendResponse({ exists: exists });
-      })
-      .catch(error => {
-
-        sendResponse({ error: error.message });
-      });
-
-    return true;  //indicate asynchronous behaviour
-  }
-  else if (request.action === 'createSheet') {
-    getAccessToken()
-      .then(token => createSheet(token, request.spreadsheetID, request.sheetName))
-      .then(response => {
-
-        sendResponse({ result: response });
-      })
-      .catch(error => {
-
-        sendResponse({ error: error.message });
-      });
-
-    return true;
-  }
-  else if (request.action === 'writeToSheet') {
-    getAccessToken()
-      .then(token => writeToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values))
-      .then(response => {
-
-        sendResponse({ result: response });
-      }
-      )
-      .catch(error => {
-
-        sendResponse({ error: error.message });
-      }
-      )
-    return true;
-  }
-  else if (request.action === 'readFromSheet') {
-    getAccessToken()
-      .then(token => readFromSheet(token, request.spreadsheetID, request.sheetName, request.range))
-      .then(response => {
-
-        sendResponse({ result: response });
-      }
-      )
-      .catch(error => {
-
-        sendResponse({ error: error.message })
-      }
-      )
-
-    return true;
-  }
-  else if (request.action === 'insertRowToSheet') {
-    getAccessToken()
-      .then(token =>
-        getSheetID(token, request.spreadsheetID, request.sheetName)
-          .then(sheetId => insertRowToSheet(token, request.spreadsheetID, sheetId, request.rowIndex, request.rowData))
-      )
-      .then(response => {
-
-        sendResponse({ result: response });
-      })
-      .catch(error => {
-
-        sendResponse({ error: error.message });
-      })
-
-    return true;
-  }
-  else if (request.action === 'createSpreadSheet') {
-    getAccessToken()
-      .then(token =>
-        createSpreadSheet(token, request.title, request.folder_id)
-      )
-      .then(response => {
+  (async () => {
+    try {
+      const token = await getAccessToken();
+      
+      if (request.action === 'checkSheetExists') {
+        const response = await checkSheetExists(token, request.spreadsheetID, request.sheetName);
+        sendResponse({exists: response});
+      } else if (request.action === 'createSheet') {
+        const response = await createSheet(token, request.spreadsheetID, request.sheetName);
         sendResponse({result: response});
-      })
-      .catch(error => {
-        sendResponse({error: error.message});
-      })
+      } else if (request.action === 'readFromSheet') { //test here
+        const response = await readFromSheet(token, request.spreadsheetID, request.sheetName, request.range);
+        sendResponse({result: response});
+      } else if (request.action === 'writeFromSheet') { 
+        const response = await writeToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values);
+        sendResponse({result: response});
+      } else if (request.action === 'insertRowToSheet') {
+        const response = await insertRowToSheet(token, request.spreadsheetID, sheetId, request.rowIndex, request.rowData);
+        sendResponse({result: response});
+      } else if (request.action === 'createSpreadSheet') {
+        const response = await createSpreadSheet(token, request.title, request.folder_id);
+        sendResponse({result: response});
+      } else {
+        throw new Error(`unknown function: ${request.action}`);
+      }
+    } catch (error) {
+      console.log('error: ', error)
+      sendResponse({error: error.message || String(error)});
+    }
+  })();
 
-      return true;
-  }
+  return true;
 })
+
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+//   if (request.action === 'checkSheetExists') {
+//     getAccessToken()
+//       .then(token => checkSheetExists(token, request.spreadsheetID, request.sheetName))
+//       .then(exists => {
+
+//         sendResponse({ exists: exists });
+//       })
+//       .catch(error => {
+
+//         sendResponse({ error: error.message });
+//       });
+
+//     return true;  //indicate asynchronous behaviour
+//   }
+//   else if (request.action === 'createSheet') {
+//     getAccessToken()
+//       .then(token => createSheet(token, request.spreadsheetID, request.sheetName))
+//       .then(response => {
+
+//         sendResponse({ result: response });
+//       })
+//       .catch(error => {
+
+//         sendResponse({ error: error.message });
+//       });
+
+//     return true;
+//   }
+//   else if (request.action === 'writeToSheet') {
+//     getAccessToken()
+//       .then(token => writeToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values))
+//       .then(response => {
+
+//         sendResponse({ result: response });
+//       }
+//       )
+//       .catch(error => {
+
+//         sendResponse({ error: error.message });
+//       }
+//       )
+//     return true;
+//   }
+//   else if (request.action === 'readFromSheet') {
+//     getAccessToken()
+//       .then(token => readFromSheet(token, request.spreadsheetID, request.sheetName, request.range))
+//       .then(response => {
+
+//         sendResponse({ result: response });
+//       }
+//       )
+//       .catch(error => {
+
+//         sendResponse({ error: error.message })
+//       }
+//       )
+
+//     return true;
+//   }
+//   else if (request.action === 'insertRowToSheet') {
+//     getAccessToken()
+//       .then(token =>
+//         getSheetID(token, request.spreadsheetID, request.sheetName)
+//           .then(sheetId => insertRowToSheet(token, request.spreadsheetID, sheetId, request.rowIndex, request.rowData))
+//       )
+//       .then(response => {
+
+//         sendResponse({ result: response });
+//       })
+//       .catch(error => {
+
+//         sendResponse({ error: error.message });
+//       })
+
+//     return true;
+//   }
+//   else if (request.action === 'createSpreadSheet') {
+//     getAccessToken()
+//       .then(token =>
+//         createSpreadSheet(token, request.title, request.folder_id)
+//       )
+//       .then(response => {
+//         sendResponse({result: response});
+//       })
+//       .catch(error => {
+//         sendResponse({error: error.message});
+//       })
+
+//       return true;
+//   }
+// })
 
 async function createSpreadSheet(token, title, folder_id) {
   const url = "https://sheets.googleapis.com/v4/spreadsheets";
