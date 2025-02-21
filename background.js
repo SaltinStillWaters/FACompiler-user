@@ -50,7 +50,7 @@ async function getAccessToken() {
 
   const payload = {
     iss: SERVICE_ACCOUNT_CREDENTIALS.client_email,
-    scope: "https://www.googleapis.com/auth/spreadsheets",
+    scope: "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive",
     aud: "https://oauth2.googleapis.com/token",
     exp: Math.floor(Date.now() / 1000) + 3600,
     iat: Math.floor(Date.now() / 1000)
@@ -173,7 +173,68 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     return true;
   }
+  else if (request.action === 'createSpreadSheet') {
+    getAccessToken()
+      .then(token =>
+        createSpreadSheet(token, request.title, request.folder_id)
+      )
+      .then(response => {
+        sendResponse({result: response});
+      })
+      .catch(error => {
+        sendResponse({error: error.message});
+      })
+
+      return true;
+  }
 })
+
+async function createSpreadSheet(token, title, folder_id) {
+  const url = "https://sheets.googleapis.com/v4/spreadsheets";
+
+  const requestBody = {
+    properties: {title: title},
+    sheets: [{properties: {title: 'main'}}]
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-type': 'application/json' 
+    },
+    body: JSON.stringify(requestBody)
+  });
+
+  if (!response.ok) {
+    console.log('error creating spreadsheet');
+    return null;
+  }
+
+  const data = await response.json();
+  const spreadsheetId = data.spreadsheetId;
+  console.log(spreadsheetId);
+
+  console.log('moving spreadsheet');
+
+  const drive_url = (fileId) => `https://www.googleapis.com/drive/v3/files/${fileId}`;
+  const moveResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${spreadsheetId}?addParents=${folder_id}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-type': 'application/json'
+    }
+  }); 
+
+  if (!moveResponse.ok) {
+    console.log('error moving spreadsheet', await moveResponse.text());
+    return null;
+  }
+
+  console.log('spreadsheet moved')
+
+  return spreadsheetId;
+}
 
 function insertRowToSheet(token, spreadsheetID, sheetId, rowIndex, rowData) {
   const requestBody =

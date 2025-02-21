@@ -28,7 +28,11 @@ class SheetInfo {
         let range: any = computeRange(this.COLUMNS['sheet_id'], this.#row_count);
         console.log(range);
         let res = await Sheet.read(this.MAIN_SHEET_ID, this.#info_sheet_name, range);
-        console.log(res);
+        console.log('table extracted', res);
+        console.log('creating new spreadsheet');
+
+        const a = await(Sheet.createSpreadSheet('sub_spreadsheet', '1aOLKhpj0UCuSGbXg5rOcQK4Z0frScEbd'))
+        console.log('spreadsheet created')
         return;
     }
 

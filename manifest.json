@@ -22,7 +22,9 @@
     },
     
     "host_permissions": [
-        "https://sheets.googleapis.com/*"
+        "https://sheets.googleapis.com/*",
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/drive.file"
     ],
 
     "content_scripts": [

@@ -16,6 +16,22 @@ class Sheet {
             });
         });
     }
+    static createSpreadSheet(title, folder_id) {
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                action: 'createSpreadSheet',
+                title: title,
+                folder_id: folder_id
+            }, (response) => {
+                if (response.error) {
+                    reject(response.error);
+                }
+                else {
+                    resolve(response.result);
+                }
+            });
+        });
+    }
     static insertRow(spreadsheetID, sheetName, rowIndex, rowData) {
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage({
