@@ -7,7 +7,6 @@ class SheetInfo {
     static #info_sheet_name: string = 'main';
     static #folder_id: string = '1aOLKhpj0UCuSGbXg5rOcQK4Z0frScEbd';
     static #row_count: number;
-    static #main_sheet_id = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
     static readonly COLUMNS = {
         'alias': 'A',
         'course_id': 'B',
@@ -20,31 +19,14 @@ class SheetInfo {
     }
 
     static async setInfoSheetCount(): Promise<void> {
-        let count = await Sheet.read(this.MAIN_SHEET_ID, this.infoSheetName, this.COLUMNS['total']);
+        let count = await SheetAPI.read(this.MAIN_SHEET_ID, this.infoSheetName, this.COLUMNS['total']);
         this.#row_count = count[0][0];
     }
 
     static async setTargetID(): Promise<void> {
         await this.setInfoSheetCount();
-        let range: any = computeRange(this.COLUMNS['course_id'], this.#row_count);
-        let table = await Sheet.read(this.MAIN_SHEET_ID, this.#info_sheet_name, range);
-        
-        let index = binarySearch(table, UrlInfo.courseId);
-        if (!index.isFound) {
-            if (UrlInfo.courseId > table[index.index][0])
-                ++index.index;
-
-            const spreadsheet_id = await(Sheet.createSpreadSheet(UrlInfo.courseId, this.#folder_id));
-            await Sheet.insertRow(this.MAIN_SHEET_ID, this.#info_sheet_name, index.index + 1, ['', UrlInfo.courseId, spreadsheet_id])
-            this.#target_id = spreadsheet_id;
-        }
-        
-        range = computeRange(this.COLUMNS.sheet_id, 1, this.COLUMNS.sheet_id, index.index + 1)
-        console.log(range);
-        this.#target_id = await Sheet.read(this.#main_sheet_id, this.infoSheetName, range);
-        this.#target_id = this.#target_id[0][0];
-        
-        return;
+        this.#target_id = await Sheet.findSpreadSheetID(this.COLUMNS.course_id, this.COLUMNS.sheet_id, this.#row_count, this.MAIN_SHEET_ID, this.#info_sheet_name, this.#folder_id);
+        console.log('target id: ', this.#target_id);
     }
 
     static overwriteTargetID(new_target_id: string): void {

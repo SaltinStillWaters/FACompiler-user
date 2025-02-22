@@ -10,30 +10,17 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _a, _SheetInfo_target_id, _SheetInfo_info_sheet_name, _SheetInfo_folder_id, _SheetInfo_row_count, _SheetInfo_main_sheet_id, _b, _UrlInfo_base_url, _UrlInfo_course_id, _UrlInfo_FA_id, _UrlInfo_question_id, _UrlInfo_url, _UrlInfo_extract_base_url, _UrlInfo_extract_course_id, _UrlInfo_extract_FA_id, _UrlInfo_extract_question_id;
+var _a, _SheetInfo_target_id, _SheetInfo_info_sheet_name, _SheetInfo_folder_id, _SheetInfo_row_count, _b, _UrlInfo_base_url, _UrlInfo_course_id, _UrlInfo_FA_id, _UrlInfo_question_id, _UrlInfo_url, _UrlInfo_extract_base_url, _UrlInfo_extract_course_id, _UrlInfo_extract_FA_id, _UrlInfo_extract_question_id;
 let SPREADSHEET_ID = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
 class SheetInfo {
     static async setInfoSheetCount() {
-        let count = await Sheet.read(this.MAIN_SHEET_ID, this.infoSheetName, this.COLUMNS['total']);
+        let count = await SheetAPI.read(this.MAIN_SHEET_ID, this.infoSheetName, this.COLUMNS['total']);
         __classPrivateFieldSet(this, _a, count[0][0], "f", _SheetInfo_row_count);
     }
     static async setTargetID() {
         await this.setInfoSheetCount();
-        let range = computeRange(this.COLUMNS['course_id'], __classPrivateFieldGet(this, _a, "f", _SheetInfo_row_count));
-        let table = await Sheet.read(this.MAIN_SHEET_ID, __classPrivateFieldGet(this, _a, "f", _SheetInfo_info_sheet_name), range);
-        let index = binarySearch(table, UrlInfo.courseId);
-        if (!index.isFound) {
-            if (UrlInfo.courseId > table[index.index][0])
-                ++index.index;
-            const spreadsheet_id = await (Sheet.createSpreadSheet(UrlInfo.courseId, __classPrivateFieldGet(this, _a, "f", _SheetInfo_folder_id)));
-            await Sheet.insertRow(this.MAIN_SHEET_ID, __classPrivateFieldGet(this, _a, "f", _SheetInfo_info_sheet_name), index.index + 1, ['', UrlInfo.courseId, spreadsheet_id]);
-            __classPrivateFieldSet(this, _a, spreadsheet_id, "f", _SheetInfo_target_id);
-        }
-        range = computeRange(this.COLUMNS.sheet_id, 1, this.COLUMNS.sheet_id, index.index + 1);
-        console.log(range);
-        __classPrivateFieldSet(this, _a, await Sheet.read(__classPrivateFieldGet(this, _a, "f", _SheetInfo_main_sheet_id), this.infoSheetName, range), "f", _SheetInfo_target_id);
-        __classPrivateFieldSet(this, _a, __classPrivateFieldGet(this, _a, "f", _SheetInfo_target_id)[0][0], "f", _SheetInfo_target_id);
-        return;
+        __classPrivateFieldSet(this, _a, await Sheet.findSpreadSheetID(this.COLUMNS.course_id, this.COLUMNS.sheet_id, __classPrivateFieldGet(this, _a, "f", _SheetInfo_row_count), this.MAIN_SHEET_ID, __classPrivateFieldGet(this, _a, "f", _SheetInfo_info_sheet_name), __classPrivateFieldGet(this, _a, "f", _SheetInfo_folder_id)), "f", _SheetInfo_target_id);
+        console.log('target id: ', __classPrivateFieldGet(this, _a, "f", _SheetInfo_target_id));
     }
     static overwriteTargetID(new_target_id) {
         __classPrivateFieldSet(this, _a, new_target_id, "f", _SheetInfo_target_id);
@@ -52,7 +39,6 @@ _SheetInfo_target_id = { value: void 0 };
 _SheetInfo_info_sheet_name = { value: 'main' };
 _SheetInfo_folder_id = { value: '1aOLKhpj0UCuSGbXg5rOcQK4Z0frScEbd' };
 _SheetInfo_row_count = { value: void 0 };
-_SheetInfo_main_sheet_id = { value: '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ' };
 SheetInfo.COLUMNS = {
     'alias': 'A',
     'course_id': 'B',

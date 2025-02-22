@@ -1,112 +1,19 @@
 "use strict";
 class Sheet {
-    static create(spreadsheetID, sheetName) {
-        return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
-                action: 'createSheet',
-                spreadsheetID: spreadsheetID,
-                sheetName: sheetName
-            }, (response) => {
-                if (response.error) {
-                    console.error(response.error);
-                    reject(response.error);
-                }
-                else {
-                    resolve(response.result);
-                }
-            });
-        });
-    }
-    static createSpreadSheet(title, folder_id) {
-        return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
-                action: 'createSpreadSheet',
-                title: title,
-                folder_id: folder_id
-            }, (response) => {
-                if (response.error) {
-                    console.error(response.error);
-                    reject(response.error);
-                }
-                else {
-                    resolve(response.result);
-                }
-            });
-        });
-    }
-    static insertRow(spreadsheetID, sheetName, rowIndex, rowData) {
-        return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
-                action: 'insertRowToSheet',
-                spreadsheetID: spreadsheetID,
-                sheetName: sheetName,
-                rowIndex: rowIndex,
-                rowData: rowData
-            }, (response) => {
-                if (response.error) {
-                    console.error(response.error);
-                    reject(response.error);
-                }
-                else {
-                    resolve(response.result);
-                }
-            });
-        });
-    }
-    static read(spreadsheetID, sheetName, range) {
-        return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
-                action: 'readFromSheet',
-                spreadsheetID: spreadsheetID,
-                sheetName: sheetName,
-                range: range
-            }, (response) => {
-                if (response.error) {
-                    console.error(response.error);
-                    reject(response.error);
-                }
-                else {
-                    resolve(response.result);
-                }
-            });
-        });
-    }
-    static write(spreadsheetID, sheetName, range, values) {
-        return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
-                action: 'writeToSheet',
-                spreadsheetID: spreadsheetID,
-                sheetName: sheetName,
-                range: range,
-                values: values
-            }, (response) => {
-                if (response.error) {
-                    console.error(response.error);
-                    reject(response.error);
-                }
-                else {
-                    resolve(response.result);
-                }
-            });
-        });
-    }
-    static checkIfExists(spreadsheetID, sheetName) {
-        console.log('sheet started');
-        return new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({
-                action: 'checkSheetExists',
-                spreadsheetID: spreadsheetID,
-                sheetName: sheetName
-            }, (response) => {
-                if (response.error) {
-                    console.error(response.error);
-                    reject(response.error);
-                }
-                else {
-                    resolve(response.exists);
-                }
-            });
-        });
+    static async findSpreadSheetID(src_col_compare, src_col_get, row_count, src_spreadsheet_id, src_info_sheet_name, folder_id) {
+        let range = computeRange(src_col_compare, row_count);
+        let table = await SheetAPI.read(src_spreadsheet_id, src_info_sheet_name, range);
+        let index = binarySearch(table, UrlInfo.courseId);
+        if (!index.isFound) {
+            if (UrlInfo.courseId > table[index.index][0])
+                ++index.index;
+            const spreadsheet_id = await (SheetAPI.createSpreadSheet(UrlInfo.courseId, folder_id));
+            await SheetAPI.insertRow(src_spreadsheet_id, src_info_sheet_name, index.index + 1, ['', UrlInfo.courseId, spreadsheet_id]);
+            return spreadsheet_id;
+        }
+        range = computeRange(src_col_get, 1, src_col_get, index.index + 1);
+        const result = await SheetAPI.read(src_spreadsheet_id, src_info_sheet_name, range);
+        return result[0][0];
     }
 }
 //# sourceMappingURL=sheet.js.map

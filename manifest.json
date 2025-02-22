@@ -30,7 +30,7 @@
     "content_scripts": [
         {
             "matches": ["https://feu.instructure.com/courses/*"],
-            "js": ["js/globals.js", "js/init.js", "js/sheet.js", "js/utils.js"]
+            "js": ["js/globals.js", "js/init.js", "js/sheetAPI.js", "js/utils.js", "js/sheet.js"]
         }
     ]
 }
