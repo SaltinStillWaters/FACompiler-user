@@ -47,6 +47,18 @@ SheetInfo.COLUMNS = {
 };
 (() => {
 })();
+class SubSheetInfo {
+}
+SubSheetInfo.info_sheet_name = 'main';
+SubSheetInfo.total_formula = [[`=COUNTA(INDIRECT("A2:A21"))`]];
+SubSheetInfo.column_names = ['Questions', 'Choices', 'Answers', 'Wrong Answers', 'Total'];
+SubSheetInfo.COLUMNS = {
+    'question': 'A',
+    'choice': 'B',
+    'answer': 'C',
+    'wrong_answer': 'D',
+    'total': 'F'
+};
 class UrlInfo {
     static update() {
         __classPrivateFieldSet(this, _b, window.location.href, "f", _UrlInfo_url);

@@ -112,6 +112,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       } else if (request.action === 'writeToSheet') { 
         const response = await writeToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values);
         sendResponse({result: response});
+      } else if (request.action === 'writeFormulaToSheet') { 
+        const response = await writeFormulaToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values);
+        sendResponse({result: response});
       } else if (request.action === 'insertRowToSheet') {
         const sheet_id = await getSheetID(token, request.spreadsheetID, request.sheetName);
         console.log(request.spreadsheetID, request.sheetName, sheet_id);  
@@ -385,6 +388,33 @@ function readFromSheet(token, spreadsheetID, sheetName, range) {
 
 function writeToSheet(token, spreadsheetID, sheetName, range, values) {
   return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}/values/${sheetName}!${range}?valueInputOption=RAW`,
+    {
+      method: 'PUT',
+      headers:
+      {
+        'Authorization': `Bearer ${token}`,
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(
+        {
+          values: values
+        }
+      )
+    }
+  )
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        throw new Error(data.error.message);
+      }
+
+      return data;
+    }
+    )
+}
+
+function writeFormulaToSheet(token, spreadsheetID, sheetName, range, values) {
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}/values/${sheetName}!${range}?valueInputOption=USER_ENTERED`,
     {
       method: 'PUT',
       headers:

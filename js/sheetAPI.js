@@ -90,6 +90,25 @@ class SheetAPI {
             });
         });
     }
+    static writeFormula(spreadsheetID, sheetName, range, values) {
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                action: 'writeFormulaToSheet',
+                spreadsheetID: spreadsheetID,
+                sheetName: sheetName,
+                range: range,
+                values: values
+            }, (response) => {
+                if (response.error) {
+                    console.error(response.error);
+                    reject(response.error);
+                }
+                else {
+                    resolve(response.result);
+                }
+            });
+        });
+    }
     static checkIfExists(spreadsheetID, sheetName) {
         console.log('sheet started');
         return new Promise((resolve, reject) => {

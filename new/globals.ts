@@ -42,6 +42,18 @@ class SheetInfo {
     }
 }
 
+class SubSheetInfo {
+    static readonly info_sheet_name: string = 'main';
+    static readonly total_formula: string[][] = [[`=COUNTA(INDIRECT("A2:A21"))`]];
+    static readonly column_names = ['Questions', 'Choices', 'Answers', 'Wrong Answers', 'Total'];
+    static readonly COLUMNS = {
+        'question': 'A',
+        'choice': 'B',
+        'answer': 'C',
+        'wrong_answer': 'D',
+        'total': 'F'
+    };
+}
 class UrlInfo {
     static readonly KEYS: string[] = ['url', 'base_url', 'course_id', 'FA_id', 'question_id'];
 
