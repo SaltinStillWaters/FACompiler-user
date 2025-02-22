@@ -109,11 +109,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       } else if (request.action === 'readFromSheet') { //test here
         const response = await readFromSheet(token, request.spreadsheetID, request.sheetName, request.range);
         sendResponse({result: response});
-      } else if (request.action === 'writeFromSheet') { 
+      } else if (request.action === 'writeToSheet') { 
         const response = await writeToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values);
         sendResponse({result: response});
       } else if (request.action === 'insertRowToSheet') {
-        const response = await insertRowToSheet(token, request.spreadsheetID, sheetId, request.rowIndex, request.rowData);
+        const sheet_id = await getSheetID(token, request.spreadsheetID, request.sheetName);
+        console.log(request.spreadsheetID, request.sheetName, sheet_id);  
+        const response = await insertRowToSheet(token, request.spreadsheetID, sheet_id, request.rowIndex, request.rowData);
         sendResponse({result: response});
       } else if (request.action === 'createSpreadSheet') {
         const response = await createSpreadSheet(token, request.title, request.folder_id);
@@ -331,29 +333,31 @@ function insertRowToSheet(token, spreadsheetID, sheetId, rowIndex, rowData) {
 }
 
 function getSheetID(token, spreadsheetID, sheetName) {
-  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}?fields=sheets.properties`,
-    {
-      method: 'GET',
-      headers:
-      {
-        'Authorization': `Bearer ${token}`,
-        'Content-type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      let sheetId = null;
-      for (let i = 0; i < data.sheets.length; i++) {
-        if (data.sheets[i].properties.title === sheetName) {
-          sheetId = data.sheets[i].properties.sheetId;
-          break;
-        }
-      }
-
-
-      return sheetId;
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}?fields=sheets.properties`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
     }
-    )
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (!data.sheets) {
+      throw new Error("Invalid response: No sheets found.");
+    }
+
+    let sheet = data.sheets.find(s => s.properties.title === sheetName);
+    return sheet ? sheet.properties.sheetId : null;
+  })
+  .catch(error => {
+    console.error("Error fetching sheet ID:", error);
+    return null; // or rethrow if you want the caller to handle it
+  });
 }
 
 function readFromSheet(token, spreadsheetID, sheetName, range) {

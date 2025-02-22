@@ -1,7 +1,14 @@
 "use strict";
-function computeRange(column, rowCount, rowStart = 1) {
+function computeRange(columnStart, rowCount, columnEnd = '', rowStart = 1) {
+    if (!columnEnd) {
+        columnEnd = columnStart;
+    }
     ++rowStart;
-    let range = column + rowStart + ':' + column;
+    if (columnStart === columnEnd && rowCount == 1) {
+        console.log('early return');
+        return columnStart + rowStart;
+    }
+    let range = columnStart + rowStart + ':' + columnEnd;
     return range += Number(Number(rowStart) + Number(rowCount) - 1);
 }
 function binarySearch(arr, toFind, criteria = 0) {

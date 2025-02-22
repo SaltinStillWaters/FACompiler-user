@@ -1,27 +1,28 @@
 const RENEWAL_KEYS = ['course_id', 'target_sheet_id'];
 
-chrome.storage.local.get(RENEWAL_KEYS)
-    .then(local_data => {
-        if (local_data['course_id'] === UrlInfo.courseId) {
-            console.log('up to date');
-            return;
-        }
-        
+(async () => {
+try {
+    const local_data = await chrome.storage.local.get(RENEWAL_KEYS)
+    
+    if (local_data['course_id'] === UrlInfo.courseId) {
+        console.log('local_data is up to date');
+        SheetInfo.overwriteTargetID(local_data['target_sheet_id']);
+    } else {
         console.log('needs update');
-        return updateLocalData();
-    })
-    .then(async () => {
-        await SheetInfo.extractTargetID();
-        //some code
-    })
-    .catch((error) => {
-        //some code
-    })
+        await updateLocalData();
+    }
+
+    console.log('target id: ', SheetInfo.targetID);
+} catch (error) {
+    console.error(error);    
+}
+})();
+    
 
 async function updateLocalData(): Promise<void> {
     let dict: { [key: string]: string } = {};
 
-    await SheetInfo.extractTargetID();
+    await SheetInfo.setTargetID();
     const vals: string[] = [UrlInfo.courseId, SheetInfo.targetID];
 
     RENEWAL_KEYS.forEach((key, index) => {

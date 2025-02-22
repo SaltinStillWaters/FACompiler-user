@@ -5,12 +5,14 @@ class SheetInfo {
     static readonly KEYS: string[] = ['target_sheet_id'];
     static #target_id: string;
     static #info_sheet_name: string = 'main';
+    static #folder_id: string = '1aOLKhpj0UCuSGbXg5rOcQK4Z0frScEbd';
     static #row_count: number;
-
+    static #main_sheet_id = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
     static readonly COLUMNS = {
-        'course_id': 'A',
-        'sheet_id': 'B',
-        'total': 'D1',
+        'alias': 'A',
+        'course_id': 'B',
+        'sheet_id': 'C',
+        'total': 'E1',
     }
     
     static {
@@ -22,23 +24,31 @@ class SheetInfo {
         this.#row_count = count[0][0];
     }
 
-    static async extractTargetID(): Promise<void> {
-        // await this.setInfoSheetCount();
-        // console.log(this.#row_count)
-        // let range: any = computeRange(this.COLUMNS['sheet_id'], this.#row_count);
-        // console.log(range);
-        // let res = await Sheet.read(this.MAIN_SHEET_ID, this.#info_sheet_name, range);
-        // console.log('table extracted', res);
-        // console.log('creating new spreadsheet');
-
-        // const a = await(Sheet.createSpreadSheet('sub_spreadsheet', '1aOLKhpj0UCuSGbXg5rOcQK4Z0frScEbd'))
-        // console.log('spreadsheet created')
+    static async setTargetID(): Promise<void> {
+        await this.setInfoSheetCount();
+        let range: any = computeRange(this.COLUMNS['course_id'], this.#row_count);
+        let table = await Sheet.read(this.MAIN_SHEET_ID, this.#info_sheet_name, range);
         
-        //test
-        console.log('started');
-        const test = await Sheet.create(SheetInfo.MAIN_SHEET_ID, 'main');
-        console.log('test: ', test);
+        let index = binarySearch(table, UrlInfo.courseId);
+        if (!index.isFound) {
+            if (UrlInfo.courseId > table[index.index][0])
+                ++index.index;
+
+            const spreadsheet_id = await(Sheet.createSpreadSheet(UrlInfo.courseId, this.#folder_id));
+            await Sheet.insertRow(this.MAIN_SHEET_ID, this.#info_sheet_name, index.index + 1, ['', UrlInfo.courseId, spreadsheet_id])
+            this.#target_id = spreadsheet_id;
+        }
+        
+        range = computeRange(this.COLUMNS.sheet_id, 1, this.COLUMNS.sheet_id, index.index + 1)
+        console.log(range);
+        this.#target_id = await Sheet.read(this.#main_sheet_id, this.infoSheetName, range);
+        this.#target_id = this.#target_id[0][0];
+        
         return;
+    }
+
+    static overwriteTargetID(new_target_id: string): void {
+        this.#target_id = new_target_id;
     }
 
     static get infoSheetName(): string {
@@ -66,7 +76,7 @@ class UrlInfo {
         this.#FA_id = this.#extract_FA_id(this.#url);
         this.#question_id = this.#extract_question_id(this.#url);
 
-        //console.log('1: ', this.#base_url, '1: ',  this.#course_id, '1: ',  this.#FA_id, '1: ',  this.#question_id)
+    
     }
     
     static update(): void {

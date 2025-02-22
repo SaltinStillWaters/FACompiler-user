@@ -1,6 +1,16 @@
-function computeRange(column: any, rowCount: number, rowStart: number = 1) {
+function computeRange(columnStart: any, rowCount: number, columnEnd: any = '', rowStart: number = 1) {
+    if (!columnEnd) {
+        columnEnd = columnStart;
+    }
+
     ++rowStart;
-    let range = column + rowStart + ':' + column;
+    
+    if (columnStart === columnEnd && rowCount == 1) {
+        console.log('early return');
+        return columnStart + rowStart;
+    }
+
+    let range = columnStart + rowStart + ':' + columnEnd;
     return range += Number(Number(rowStart) + Number(rowCount) - 1);
 }
 
