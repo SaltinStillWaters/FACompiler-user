@@ -20,7 +20,6 @@ class SheetInfo {
     static async setTargetID() {
         await this.setInfoSheetCount();
         __classPrivateFieldSet(this, _a, await Sheet.findSpreadSheetID(this.COLUMNS.course_id, this.COLUMNS.sheet_id, __classPrivateFieldGet(this, _a, "f", _SheetInfo_row_count), this.MAIN_SHEET_ID, __classPrivateFieldGet(this, _a, "f", _SheetInfo_info_sheet_name), __classPrivateFieldGet(this, _a, "f", _SheetInfo_folder_id)), "f", _SheetInfo_target_id);
-        console.log('target id: ', __classPrivateFieldGet(this, _a, "f", _SheetInfo_target_id));
     }
     static overwriteTargetID(new_target_id) {
         __classPrivateFieldSet(this, _a, new_target_id, "f", _SheetInfo_target_id);
@@ -52,12 +51,20 @@ class SubSheetInfo {
 SubSheetInfo.info_sheet_name = 'main';
 SubSheetInfo.total_formula = [[`=COUNTA(INDIRECT("A2:A21"))`]];
 SubSheetInfo.column_names = ['Questions', 'Choices', 'Answers', 'Wrong Answers', 'Total'];
+SubSheetInfo.col_index_widths = [[0, 777], [1, 316], [2, 192], [3, 194], [4, 36], [5, 19]];
 SubSheetInfo.COLUMNS = {
     'question': 'A',
     'choice': 'B',
     'answer': 'C',
     'wrong_answer': 'D',
     'total': 'F'
+};
+SubSheetInfo.back_end_column_names = ['Choices', 'Choice id', 'Answers', 'Wrong Answers'];
+SubSheetInfo.BACKEND_COLUMNS = {
+    'choice': 'W',
+    'choice_id': 'X',
+    'answer': 'Y',
+    'wrong_answer': 'Z',
 };
 class UrlInfo {
     static update() {

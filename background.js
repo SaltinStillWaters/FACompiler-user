@@ -123,6 +123,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       } else if (request.action === 'createSpreadSheet') {
         const response = await createSpreadSheet(token, request.title, request.folder_id);
         sendResponse({result: response});
+      } else if (request.action === 'updateColSize') {
+        const sheet_id = await getSheetID(token, request.spreadsheetID, request.sheetName);
+        const response = await updateColSize(token, request.spreadsheetID, sheet_id, request.colIndexWidths);
+        sendResponse({result: response});
       } else {
         throw new Error(`unknown function: ${request.action}`);
       }
@@ -134,99 +138,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   return true;
 })
-
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-//   if (request.action === 'checkSheetExists') {
-//     getAccessToken()
-//       .then(token => checkSheetExists(token, request.spreadsheetID, request.sheetName))
-//       .then(exists => {
-
-//         sendResponse({ exists: exists });
-//       })
-//       .catch(error => {
-
-//         sendResponse({ error: error.message });
-//       });
-
-//     return true;  //indicate asynchronous behaviour
-//   }
-//   else if (request.action === 'createSheet') {
-//     getAccessToken()
-//       .then(token => createSheet(token, request.spreadsheetID, request.sheetName))
-//       .then(response => {
-
-//         sendResponse({ result: response });
-//       })
-//       .catch(error => {
-
-//         sendResponse({ error: error.message });
-//       });
-
-//     return true;
-//   }
-//   else if (request.action === 'writeToSheet') {
-//     getAccessToken()
-//       .then(token => writeToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values))
-//       .then(response => {
-
-//         sendResponse({ result: response });
-//       }
-//       )
-//       .catch(error => {
-
-//         sendResponse({ error: error.message });
-//       }
-//       )
-//     return true;
-//   }
-//   else if (request.action === 'readFromSheet') {
-//     getAccessToken()
-//       .then(token => readFromSheet(token, request.spreadsheetID, request.sheetName, request.range))
-//       .then(response => {
-
-//         sendResponse({ result: response });
-//       }
-//       )
-//       .catch(error => {
-
-//         sendResponse({ error: error.message })
-//       }
-//       )
-
-//     return true;
-//   }
-//   else if (request.action === 'insertRowToSheet') {
-//     getAccessToken()
-//       .then(token =>
-//         getSheetID(token, request.spreadsheetID, request.sheetName)
-//           .then(sheetId => insertRowToSheet(token, request.spreadsheetID, sheetId, request.rowIndex, request.rowData))
-//       )
-//       .then(response => {
-
-//         sendResponse({ result: response });
-//       })
-//       .catch(error => {
-
-//         sendResponse({ error: error.message });
-//       })
-
-//     return true;
-//   }
-//   else if (request.action === 'createSpreadSheet') {
-//     getAccessToken()
-//       .then(token =>
-//         createSpreadSheet(token, request.title, request.folder_id)
-//       )
-//       .then(response => {
-//         sendResponse({result: response});
-//       })
-//       .catch(error => {
-//         sendResponse({error: error.message});
-//       })
-
-//       return true;
-//   }
-// })
 
 async function createSpreadSheet(token, title, folder_id) {
   const url = "https://sheets.googleapis.com/v4/spreadsheets";
@@ -275,6 +186,37 @@ async function createSpreadSheet(token, title, folder_id) {
   return spreadsheetId;
 }
 
+function updateColSize(token, spreadsheetID, sheetId, colIndexWidths) {
+  const requests = colIndexWidths.map(([colIndex, colWidth]) => ({
+    updateDimensionProperties: {
+      range: {
+          sheetId: sheetId,
+          dimension: "COLUMNS",
+          startIndex: colIndex,
+          endIndex: colIndex + 1
+      },
+      properties: {
+          pixelSize: colWidth
+      },
+      fields: "pixelSize"
+  }}));
+
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}:batchUpdate`, {
+    method: 'POST',
+    headers: {
+      "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ requests })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      throw new Error(data.error.message);
+    }
+    return data;
+  });
+}
 function insertRowToSheet(token, spreadsheetID, sheetId, rowIndex, rowData) {
   const requestBody =
   {

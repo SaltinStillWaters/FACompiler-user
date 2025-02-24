@@ -26,7 +26,6 @@ class SheetInfo {
     static async setTargetID(): Promise<void> {
         await this.setInfoSheetCount();
         this.#target_id = await Sheet.findSpreadSheetID(this.COLUMNS.course_id, this.COLUMNS.sheet_id, this.#row_count, this.MAIN_SHEET_ID, this.#info_sheet_name, this.#folder_id);
-        console.log('target id: ', this.#target_id);
     }
 
     static overwriteTargetID(new_target_id: string): void {
@@ -45,7 +44,9 @@ class SheetInfo {
 class SubSheetInfo {
     static readonly info_sheet_name: string = 'main';
     static readonly total_formula: string[][] = [[`=COUNTA(INDIRECT("A2:A21"))`]];
+    
     static readonly column_names = ['Questions', 'Choices', 'Answers', 'Wrong Answers', 'Total'];
+    static readonly col_index_widths = [[0, 777], [1, 316], [2, 192], [3, 194], [4, 36], [5, 19]];
     static readonly COLUMNS = {
         'question': 'A',
         'choice': 'B',
@@ -53,6 +54,14 @@ class SubSheetInfo {
         'wrong_answer': 'D',
         'total': 'F'
     };
+
+    static readonly back_end_column_names = ['Choices', 'Choice id', 'Answers', 'Wrong Answers'];
+    static readonly BACKEND_COLUMNS = {
+        'choice': 'W',
+        'choice_id': 'X',
+        'answer': 'Y',
+        'wrong_answer': 'Z',
+    }
 }
 class UrlInfo {
     static readonly KEYS: string[] = ['url', 'base_url', 'course_id', 'FA_id', 'question_id'];

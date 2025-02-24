@@ -22,6 +22,9 @@ class Sheet {
         let range = computeRange(SubSheetInfo.COLUMNS.total, 1, SubSheetInfo.COLUMNS.total, 0);
         await SheetAPI.writeFormula(spreadsheet_id, SubSheetInfo.info_sheet_name, range, SubSheetInfo.total_formula);
         console.log('done write formula');
+        range = computeRange(SubSheetInfo.BACKEND_COLUMNS.choice, 1, SubSheetInfo.BACKEND_COLUMNS.wrong_answer, 0);
+        await SheetAPI.write(spreadsheet_id, SubSheetInfo.info_sheet_name, range, [SubSheetInfo.back_end_column_names]);
+        await SheetAPI.updateColSize(spreadsheet_id, SubSheetInfo.info_sheet_name, SubSheetInfo.col_index_widths);
         console.log('done init');
     }
 }

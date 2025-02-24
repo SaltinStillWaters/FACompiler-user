@@ -1,4 +1,24 @@
 class SheetAPI {
+    static updateColSize(spreadsheetID: any, sheetName: any, colIndexWidths: any) {
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                action: 'updateColSize',
+                spreadsheetID: spreadsheetID,
+                sheetName: sheetName,
+                colIndexWidths: colIndexWidths
+            },
+            (response) => {
+                if (response.error) {
+                    console.error(response.error);
+                    reject(response.error);
+                } else {
+                    resolve(response.result);
+                }
+            }
+        )
+        })
+    }
+
     static create(spreadsheetID: any, sheetName: any): Promise<any> {
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage(
