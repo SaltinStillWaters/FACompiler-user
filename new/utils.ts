@@ -1,3 +1,7 @@
+function sanitizeForURL(str: any) {
+    return str.replace(/[\/\?&=#%\"\'\\:<>\|\^\`\[\]]/g, '');
+}
+
 function computeRange(columnStart: any, rowCount: number, columnEnd: any = '', rowStart: number = 1) {
     if (!columnEnd) {
         columnEnd = columnStart;
@@ -6,7 +10,6 @@ function computeRange(columnStart: any, rowCount: number, columnEnd: any = '', r
     ++rowStart;
     
     if (columnStart === columnEnd && rowCount == 1) {
-        console.log('early return');
         return columnStart + rowStart;
     }
 

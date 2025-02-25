@@ -13,12 +13,12 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _a, _SheetInfo_target_id, _SheetInfo_info_sheet_name, _SheetInfo_folder_id, _SheetInfo_row_count, _b, _UrlInfo_base_url, _UrlInfo_course_id, _UrlInfo_FA_id, _UrlInfo_question_id, _UrlInfo_url, _UrlInfo_extract_base_url, _UrlInfo_extract_course_id, _UrlInfo_extract_FA_id, _UrlInfo_extract_question_id;
 let SPREADSHEET_ID = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
 class SheetInfo {
-    static async setInfoSheetCount() {
+    static async extractInfoSheetCount() {
         let count = await SheetAPI.read(this.MAIN_SHEET_ID, this.infoSheetName, this.COLUMNS['total']);
         __classPrivateFieldSet(this, _a, count[0][0], "f", _SheetInfo_row_count);
     }
-    static async setTargetID() {
-        await this.setInfoSheetCount();
+    static async extractTargetID() {
+        await this.extractInfoSheetCount();
         __classPrivateFieldSet(this, _a, await Sheet.findSpreadSheetID(this.COLUMNS.course_id, this.COLUMNS.sheet_id, __classPrivateFieldGet(this, _a, "f", _SheetInfo_row_count), this.MAIN_SHEET_ID, __classPrivateFieldGet(this, _a, "f", _SheetInfo_info_sheet_name), __classPrivateFieldGet(this, _a, "f", _SheetInfo_folder_id)), "f", _SheetInfo_target_id);
     }
     static overwriteTargetID(new_target_id) {
@@ -49,7 +49,7 @@ SheetInfo.COLUMNS = {
 class SubSheetInfo {
 }
 SubSheetInfo.info_sheet_name = 'main';
-SubSheetInfo.total_formula = [[`=COUNTA(INDIRECT("A2:A21"))`]];
+SubSheetInfo.total_formula = [[`=COUNTA(INDIRECT("A2:A201"))`]];
 SubSheetInfo.column_names = ['Questions', 'Choices', 'Answers', 'Wrong Answers', 'Total'];
 SubSheetInfo.col_index_widths = [[0, 777], [1, 316], [2, 192], [3, 194], [4, 36], [5, 19]];
 SubSheetInfo.COLUMNS = {
@@ -57,10 +57,11 @@ SubSheetInfo.COLUMNS = {
     'choice': 'B',
     'answer': 'C',
     'wrong_answer': 'D',
-    'total': 'F'
+    'total': 'F1'
 };
-SubSheetInfo.back_end_column_names = ['Choices', 'Choice id', 'Answers', 'Wrong Answers'];
+SubSheetInfo.back_end_column_names = ['Question id', 'Choices', 'Choice id', 'Answers', 'Wrong Answers'];
 SubSheetInfo.BACKEND_COLUMNS = {
+    'question_id': 'V',
     'choice': 'W',
     'choice_id': 'X',
     'answer': 'Y',

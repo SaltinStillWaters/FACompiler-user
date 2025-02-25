@@ -18,13 +18,13 @@ class SheetInfo {
         //this.#target_id = this.extractTargetID();
     }
 
-    static async setInfoSheetCount(): Promise<void> {
+    static async extractInfoSheetCount(): Promise<void> {
         let count = await SheetAPI.read(this.MAIN_SHEET_ID, this.infoSheetName, this.COLUMNS['total']);
         this.#row_count = count[0][0];
     }
 
-    static async setTargetID(): Promise<void> {
-        await this.setInfoSheetCount();
+    static async extractTargetID(): Promise<void> {
+        await this.extractInfoSheetCount();
         this.#target_id = await Sheet.findSpreadSheetID(this.COLUMNS.course_id, this.COLUMNS.sheet_id, this.#row_count, this.MAIN_SHEET_ID, this.#info_sheet_name, this.#folder_id);
     }
 
@@ -43,8 +43,7 @@ class SheetInfo {
 
 class SubSheetInfo {
     static readonly info_sheet_name: string = 'main';
-    static readonly total_formula: string[][] = [[`=COUNTA(INDIRECT("A2:A21"))`]];
-    
+    static readonly total_formula: string[][] = [[`=COUNTA(INDIRECT("A2:A201"))`]];
     static readonly column_names = ['Questions', 'Choices', 'Answers', 'Wrong Answers', 'Total'];
     static readonly col_index_widths = [[0, 777], [1, 316], [2, 192], [3, 194], [4, 36], [5, 19]];
     static readonly COLUMNS = {
@@ -52,11 +51,12 @@ class SubSheetInfo {
         'choice': 'B',
         'answer': 'C',
         'wrong_answer': 'D',
-        'total': 'F'
+        'total': 'F1'
     };
 
-    static readonly back_end_column_names = ['Choices', 'Choice id', 'Answers', 'Wrong Answers'];
+    static readonly back_end_column_names = ['Question id', 'Choices', 'Choice id', 'Answers', 'Wrong Answers'];
     static readonly BACKEND_COLUMNS = {
+        'question_id': 'V',
         'choice': 'W',
         'choice_id': 'X',
         'answer': 'Y',

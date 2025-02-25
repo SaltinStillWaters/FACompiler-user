@@ -1,11 +1,13 @@
 "use strict";
+function sanitizeForURL(str) {
+    return str.replace(/[\/\?&=#%\"\'\\:<>\|\^\`\[\]]/g, '');
+}
 function computeRange(columnStart, rowCount, columnEnd = '', rowStart = 1) {
     if (!columnEnd) {
         columnEnd = columnStart;
     }
     ++rowStart;
     if (columnStart === columnEnd && rowCount == 1) {
-        console.log('early return');
         return columnStart + rowStart;
     }
     let range = columnStart + rowStart + ':' + columnEnd;

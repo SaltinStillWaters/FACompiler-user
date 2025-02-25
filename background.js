@@ -104,7 +104,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const response = await checkSheetExists(token, request.spreadsheetID, request.sheetName);
         sendResponse({exists: response});
       } else if (request.action === 'createSheet') {
-        const response = await createSheet(token, request.spreadsheetID, request.sheetName);
+        const exists = await checkSheetExists(token, request.spreadsheetID, request.sheetName);
+        let response = false;
+        if (!exists) {
+          await createSheet(token, request.spreadsheetID, request.sheetName);
+          response = true;
+        }
+
         sendResponse({result: response});
       } else if (request.action === 'readFromSheet') { //test here
         const response = await readFromSheet(token, request.spreadsheetID, request.sheetName, request.range);

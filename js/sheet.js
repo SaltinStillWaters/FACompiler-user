@@ -9,22 +9,28 @@ class Sheet {
                 ++index.index;
             const spreadsheet_id = await (SheetAPI.createSpreadSheet(UrlInfo.courseId, folder_id));
             await SheetAPI.insertRow(src_spreadsheet_id, src_info_sheet_name, index.index + 1, ['', UrlInfo.courseId, spreadsheet_id]);
-            await this.initSpreadSheet(spreadsheet_id);
             return spreadsheet_id;
         }
         range = computeRange(src_col_get, 1, src_col_get, index.index + 1);
         const result = await SheetAPI.read(src_spreadsheet_id, src_info_sheet_name, range);
         return result[0][0];
     }
-    static async initSpreadSheet(spreadsheet_id) {
-        await SheetAPI.insertRow(spreadsheet_id, SubSheetInfo.info_sheet_name, 0, SubSheetInfo.column_names);
+    static async createSheet(spreadsheet_id, sheet_name) {
+        const is_created = await SheetAPI.create(spreadsheet_id, sheet_name);
+        console.log('is created: ', is_created);
+        if (is_created) {
+            await this.initSheet(spreadsheet_id, sheet_name);
+        }
+    }
+    static async initSheet(spreadsheet_id, sheet_name) {
+        await SheetAPI.insertRow(spreadsheet_id, sheet_name, 0, SubSheetInfo.column_names);
         console.log('done insert row');
         let range = computeRange(SubSheetInfo.COLUMNS.total, 1, SubSheetInfo.COLUMNS.total, 0);
-        await SheetAPI.writeFormula(spreadsheet_id, SubSheetInfo.info_sheet_name, range, SubSheetInfo.total_formula);
+        await SheetAPI.writeFormula(spreadsheet_id, sheet_name, range, SubSheetInfo.total_formula);
         console.log('done write formula');
         range = computeRange(SubSheetInfo.BACKEND_COLUMNS.choice, 1, SubSheetInfo.BACKEND_COLUMNS.wrong_answer, 0);
-        await SheetAPI.write(spreadsheet_id, SubSheetInfo.info_sheet_name, range, [SubSheetInfo.back_end_column_names]);
-        await SheetAPI.updateColSize(spreadsheet_id, SubSheetInfo.info_sheet_name, SubSheetInfo.col_index_widths);
+        await SheetAPI.write(spreadsheet_id, sheet_name, range, [SubSheetInfo.back_end_column_names]);
+        await SheetAPI.updateColSize(spreadsheet_id, sheet_name, SubSheetInfo.col_index_widths);
         console.log('done init');
     }
 }
