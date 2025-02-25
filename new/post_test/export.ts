@@ -54,7 +54,7 @@ class Export {
                 } else {
                     wrong_answer = data.answer_id;
                 }
-
+                //USE BATCH UPDATE TO UPDATE ALL SUBMISSIONS AT ONCE
                results.push({question_id: data.question_id, wrong_answer, correct_answer});
 
             }

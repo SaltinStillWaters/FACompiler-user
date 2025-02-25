@@ -1,2 +1,1 @@
-create spreadsheets
-search spreadsheet ids
+use batch update to update all in submissions at once
