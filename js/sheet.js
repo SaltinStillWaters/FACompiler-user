@@ -25,10 +25,10 @@ class Sheet {
     static async initSheet(spreadsheet_id, sheet_name) {
         await SheetAPI.insertRow(spreadsheet_id, sheet_name, 0, SubSheetInfo.column_names);
         console.log('done insert row');
-        let range = computeRange(SubSheetInfo.COLUMNS.total, 1, SubSheetInfo.COLUMNS.total, 0);
-        await SheetAPI.writeFormula(spreadsheet_id, sheet_name, range, SubSheetInfo.total_formula);
+        await SheetAPI.writeFormula(spreadsheet_id, sheet_name, SubSheetInfo.COLUMNS.total, SubSheetInfo.total_formula);
         console.log('done write formula');
-        range = computeRange(SubSheetInfo.BACKEND_COLUMNS.choice, 1, SubSheetInfo.BACKEND_COLUMNS.wrong_answer, 0);
+        let range = computeRange(SubSheetInfo.BACKEND_COLUMNS.question_id, 1, SubSheetInfo.BACKEND_COLUMNS.wrong_answer, 0);
+        console.log(range);
         await SheetAPI.write(spreadsheet_id, sheet_name, range, [SubSheetInfo.back_end_column_names]);
         await SheetAPI.updateColSize(spreadsheet_id, sheet_name, SubSheetInfo.col_index_widths);
         console.log('done init');

@@ -1,6 +1,6 @@
-let SPREADSHEET_ID: string = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
+let SPREADSHEET_ID_POST: string = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
 
-class SheetInfo {
+class SheetInfo_POST {
     static readonly MAIN_SHEET_ID: string = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
     static readonly KEYS: string[] = ['target_sheet_id'];
     static #target_id: string;
@@ -19,13 +19,13 @@ class SheetInfo {
     }
 
     static async extractInfoSheetCount(): Promise<void> {
-        let count = await SheetAPI.read(this.MAIN_SHEET_ID, this.infoSheetName, this.COLUMNS['total']);
+        let count = await SheetAPI_POST.read(this.MAIN_SHEET_ID, this.infoSheetName, this.COLUMNS['total']);
         this.#row_count = count[0][0];
     }
 
     static async extractTargetID(): Promise<void> {
         await this.extractInfoSheetCount();
-        this.#target_id = await Sheet.findSpreadSheetID(this.COLUMNS.course_id, this.COLUMNS.sheet_id, this.#row_count, this.MAIN_SHEET_ID, this.#info_sheet_name, this.#folder_id);
+        this.#target_id = await Sheet_POST.findSpreadSheetID(this.COLUMNS.course_id, this.COLUMNS.sheet_id, this.#row_count, this.MAIN_SHEET_ID, this.#info_sheet_name, this.#folder_id);
     }
 
     static overwriteTargetID(new_target_id: string): void {
@@ -41,7 +41,7 @@ class SheetInfo {
     }
 }
 
-class SubSheetInfo {
+class SubSheetInfo_POST {
     static readonly info_sheet_name: string = 'main';
     static readonly total_formula: string[][] = [[`=COUNTA(INDIRECT("A2:A201"))`]];
     static readonly column_names = ['Questions', 'Choices', 'Answers', 'Wrong Answers', 'Total'];
@@ -63,7 +63,7 @@ class SubSheetInfo {
         'wrong_answer': 'Z',
     }
 }
-class UrlInfo {
+class UrlInfo_POST {
     static readonly KEYS: string[] = ['url', 'base_url', 'course_id', 'FA_id', 'question_id'];
 
     static #base_url: string;
