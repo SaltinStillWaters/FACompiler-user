@@ -35,6 +35,9 @@ class Canvas {
         if (!questionTextElement) {
             questionTextElement = questionElement.querySelector('.question_text span');
         }
+        if (!questionTextElement) {
+            questionTextElement = questionElement.querySelector('.question_text');
+        }
         let result = questionTextElement.innerText.trim();
         if (!result)
             throw new Error('No question found');

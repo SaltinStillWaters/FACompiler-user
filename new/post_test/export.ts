@@ -34,11 +34,15 @@ class Export {
             console.log('no fa number');
         }
         
-        const range = computeRange_POST(SubSheetInfo_POST.BACKEND_COLUMNS.question_id, 1, SubSheetInfo_POST.BACKEND_COLUMNS.wrong_answer);
+        let count = await SheetAPI_POST.read(SheetInfo_POST.targetID, fa_number, SubSheetInfo_POST.COLUMNS.total);
+        const row_count = count[0][0];
+
+        const range = computeRange_POST(SubSheetInfo_POST.BACKEND_COLUMNS.question_id, row_count, SubSheetInfo_POST.BACKEND_COLUMNS.wrong_answer);
         const table = await SheetAPI_POST.read(SheetInfo_POST.targetID, fa_number, range);
         console.log(table);
 
-        let results: {question_id: string, wrong_answer: string, correct_answer: string}[] = [];
+        let api_input: {range: string, vals: string[][]}[] = [];
+
         for (const submission of submissions) {
             for (const data of submission.submission_data) {
                 if (!data.answer_id) {
@@ -54,13 +58,39 @@ class Export {
                 } else {
                     wrong_answer = data.answer_id;
                 }
-                //USE BATCH UPDATE TO UPDATE ALL SUBMISSIONS AT ONCE
-               results.push({question_id: data.question_id, wrong_answer, correct_answer});
 
+                let index = binarySearch_POST(table, data.question_id);
+                if (index.isFound) {
+                    if (table[index.index][4]) {//correct ans exists in sheet
+                        continue;
+                    }
+
+                    if (table[index.index][3]) {
+                        wrong_answer = table[index.index][3] + '**EOF**' + wrong_answer;
+                    }
+
+                    let range = 'Y' + (index.index+2) + ':Z' + (index.index + 2);
+                    api_input.push({
+                        range: range,
+                        vals: [[correct_answer, wrong_answer]]
+                    });
+                }
             }
         }
-        console.log(results);
-    }
-}
+        console.log(api_input)
+        console.log('writing to sheets')
+        await SheetAPI_POST.writeVals(SheetInfo_POST.targetID, fa_number, api_input);
+        console.log('done');
 
-Export.processSubmissions();
+    }
+
+    static columnToLetter(colIndex: number) {
+        let letter = "";
+        while (colIndex > 0) {
+          let remainder = (colIndex - 1) % 26;
+          letter = String.fromCharCode(65 + remainder) + letter;
+          colIndex = Math.floor((colIndex - 1) / 26);
+        }
+        return letter;
+      }
+}

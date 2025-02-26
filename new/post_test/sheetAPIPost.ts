@@ -124,6 +124,27 @@ class SheetAPI_POST {
         });
     }
 
+    static writeVals(spreadsheetID: any, sheetName: any, input: {range: string, vals: string[][]}[]): Promise<any> {
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage(
+                {
+                    action: 'writeValsToSheet',
+                    spreadsheetID: spreadsheetID,
+                    sheetName: sheetName,
+                    input: input
+                },
+                (response: any) => {
+                    if (response.error) {
+                        console.error(response.error);
+                        reject(response.error);
+                    } else {
+                        resolve(response.result);
+                    }
+                }
+            );
+        });
+    }
+
     static writeFormula(spreadsheetID: any, sheetName: any, range: any, values: any): Promise<any> {
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage(

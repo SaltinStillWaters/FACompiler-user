@@ -100,7 +100,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     try {
       const token = await getAccessToken();
       
-      if (request.action === 'checkSheetExists') {
+      if (request.action === 'activateExport') {
+        const response = await activateExport(token, request.spreadsheetID, request.sheetName);
+        sendResponse({exists: response});
+      }
+      else if (request.action === 'checkSheetExists') {
         const response = await checkSheetExists(token, request.spreadsheetID, request.sheetName);
         sendResponse({exists: response});
       } else if (request.action === 'createSheet') {
@@ -117,6 +121,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse({result: response});
       } else if (request.action === 'writeToSheet') { 
         const response = await writeToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values);
+        sendResponse({result: response});
+      } else if (request.action === 'writeValsToSheet') { 
+        const response = await writeValsToSheet(token, request.spreadsheetID, request.sheetName, request.input);
         sendResponse({result: response});
       } else if (request.action === 'writeFormulaToSheet') { 
         const response = await writeFormulaToSheet(token, request.spreadsheetID, request.sheetName, request.range, request.values);
@@ -144,6 +151,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   return true;
 })
+
+async function activateExport() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.sendMessage(tabs[0].id, {action: 'activateExport'});
+});
+}
 
 async function createSpreadSheet(token, title, folder_id) {
   const url = "https://sheets.googleapis.com/v4/spreadsheets";
@@ -346,6 +359,38 @@ function writeToSheet(token, spreadsheetID, sheetName, range, values) {
       body: JSON.stringify(
         {
           values: values
+        }
+      )
+    }
+  )
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        throw new Error(data.error.message);
+      }
+
+      return data;
+    }
+    )
+}
+
+function writeValsToSheet(token, spreadsheetID, sheetName, input) {
+  console.log(input);
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}/values:batchUpdate`,
+    {
+      method: 'POST',
+      headers:
+      {
+        'Authorization': `Bearer ${token}`,
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(
+        {
+          valueInputOption: 'RAW',
+          data: input.map(({range, vals}) => 
+          (
+            {range: `${sheetName}!${range}`, values: vals}
+          ))
         }
       )
     }

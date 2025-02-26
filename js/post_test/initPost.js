@@ -1,6 +1,12 @@
 "use strict";
 const RENEWAL_KEYS_POST = ['course_id', 'target_sheet_id', 'fa_id'];
-(async () => {
+chrome.runtime.onMessage.addListener((request, sender, response) => {
+    if (request.action === 'activateExport') {
+        initMain();
+        console.log('message recieved');
+    }
+});
+async function initMain() {
     try {
         console.log('Post');
         const local_data = await chrome.storage.local.get(RENEWAL_KEYS_POST);
@@ -13,6 +19,7 @@ const RENEWAL_KEYS_POST = ['course_id', 'target_sheet_id', 'fa_id'];
             await updateLocalData();
         }
         console.log('target id: ', SheetInfo_POST.targetID);
+        await Export.processSubmissions();
     }
     catch (error) {
         console.error(error);
@@ -26,5 +33,5 @@ const RENEWAL_KEYS_POST = ['course_id', 'target_sheet_id', 'fa_id'];
         });
         await chrome.storage.local.set(dict);
     }
-})();
+}
 //# sourceMappingURL=initPost.js.map

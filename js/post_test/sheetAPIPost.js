@@ -108,6 +108,24 @@ class SheetAPI_POST {
             });
         });
     }
+    static writeVals(spreadsheetID, sheetName, input) {
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                action: 'writeValsToSheet',
+                spreadsheetID: spreadsheetID,
+                sheetName: sheetName,
+                input: input
+            }, (response) => {
+                if (response.error) {
+                    console.error(response.error);
+                    reject(response.error);
+                }
+                else {
+                    resolve(response.result);
+                }
+            });
+        });
+    }
     static writeFormula(spreadsheetID, sheetName, range, values) {
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage({

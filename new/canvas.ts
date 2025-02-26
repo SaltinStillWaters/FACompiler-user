@@ -37,6 +37,7 @@ class Canvas {
         this.fa_number = sanitizeForURL(FANumber);
         console.log(this.fa_number);
     }
+
     static extractQuestion() {
         const questionElement = document.querySelector('.display_question');
 
@@ -47,6 +48,10 @@ class Canvas {
         if (!questionTextElement) {
             questionTextElement = questionElement.querySelector('.question_text span') as HTMLElement;
         }
+        if (!questionTextElement) {
+            questionTextElement = questionElement.querySelector('.question_text') as HTMLElement;
+        }
+        
         let result = questionTextElement.innerText.trim();
 
         if (!result)

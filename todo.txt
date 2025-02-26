@@ -1,1 +1,1 @@
-use batch update to update all in submissions at once
+check syntax error in background.js

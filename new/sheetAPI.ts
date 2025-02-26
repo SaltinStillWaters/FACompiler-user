@@ -122,6 +122,7 @@ class SheetAPI {
                 }
             );
         });
+    
     }
 
     static writeFormula(spreadsheetID: any, sheetName: any, range: any, values: any): Promise<any> {
