@@ -59,9 +59,7 @@ async function findQuestion(spreadsheet_id: any, sheet_name: any, question_id: a
         if (UrlInfo.questionId > table[index.index][0])
             ++index.index;
         
-        //insert row
         let row = index.index + 1
-            //front-end
         await SheetAPI.insertRow(spreadsheet_id, sheet_name, row, Canvas.buildFrontendValues());
 
         row++;
@@ -77,7 +75,6 @@ async function findQuestion(spreadsheet_id: any, sheet_name: any, question_id: a
         console.log(wrong_ans_formula);
         await SheetAPI.writeFormula(spreadsheet_id, sheet_name, SubSheetInfo.COLUMNS.wrong_answer + row, [[wrong_ans_formula]])
 
-            //back-end
         let range = computeRange(SubSheetInfo.BACKEND_COLUMNS.question_id, 1, SubSheetInfo.BACKEND_COLUMNS.wrong_answer, row - 1);
         console.log('range: ', range);
         console.log('backend values: ', [Canvas.buildBackendValues()])
