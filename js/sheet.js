@@ -16,6 +16,8 @@ class Sheet {
         return result[0][0];
     }
     static async createSheet(spreadsheet_id, sheet_name) {
+        console.log('creating sheet...');
+        console.log(spreadsheet_id, sheet_name);
         const is_created = await SheetAPI.create(spreadsheet_id, sheet_name);
         console.log('is created: ', is_created);
         if (is_created) {

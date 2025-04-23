@@ -44,6 +44,7 @@ class SheetInfo {
 class SubSheetInfo {
     static readonly info_sheet_name: string = 'main';
     static readonly total_formula: string[][] = [[`=COUNTA(INDIRECT("A2:A201"))`]];
+    
     static readonly column_names = ['Questions', 'Choices', 'Answers', 'Wrong Answers', 'Total'];
     static readonly col_index_widths = [[0, 777], [1, 316], [2, 192], [3, 194], [4, 36], [5, 19]];
     static readonly COLUMNS = {
@@ -62,6 +63,14 @@ class SubSheetInfo {
         'answer': 'Y',
         'wrong_answer': 'Z',
     }
+
+    static readonly answer_formula: string[][] = [[ 
+        `=GETANSWER(${this.BACKEND_COLUMNS.choice}_, ${this.BACKEND_COLUMNS.choice_id}_, ${this.BACKEND_COLUMNS.answer}_)`
+    ]]
+
+    static readonly wrong_answer_formula: string[][] = [[ 
+        `=GETANSWER(${this.BACKEND_COLUMNS.choice}_, ${this.BACKEND_COLUMNS.choice_id}_, ${this.BACKEND_COLUMNS.wrong_answer}_)`
+    ]]
 }
 class UrlInfo {
     static readonly KEYS: string[] = ['url', 'base_url', 'course_id', 'FA_id', 'question_id'];

@@ -13,7 +13,6 @@ class Canvas {
 
     static buildFrontendValues() {
         let choices = this.raw_choices.map(choice => choice.choice_text).join('\n\n');
-
         let result = [Canvas.question, choices];
         return result;
     }

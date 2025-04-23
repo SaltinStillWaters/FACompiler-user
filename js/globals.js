@@ -10,7 +10,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _a, _SheetInfo_target_id, _SheetInfo_info_sheet_name, _SheetInfo_folder_id, _SheetInfo_row_count, _b, _UrlInfo_base_url, _UrlInfo_course_id, _UrlInfo_FA_id, _UrlInfo_question_id, _UrlInfo_url, _UrlInfo_extract_base_url, _UrlInfo_extract_course_id, _UrlInfo_extract_FA_id, _UrlInfo_extract_question_id;
+var _a, _SheetInfo_target_id, _SheetInfo_info_sheet_name, _SheetInfo_folder_id, _SheetInfo_row_count, _b, _c, _UrlInfo_base_url, _UrlInfo_course_id, _UrlInfo_FA_id, _UrlInfo_question_id, _UrlInfo_url, _UrlInfo_extract_base_url, _UrlInfo_extract_course_id, _UrlInfo_extract_FA_id, _UrlInfo_extract_question_id;
 let SPREADSHEET_ID = '1RdjbRszhptQ2SbSdsgzwK8Amdvn-m6MdpMQi_TOo9Ck';
 class SheetInfo {
     static async extractInfoSheetCount() {
@@ -48,6 +48,7 @@ SheetInfo.COLUMNS = {
 })();
 class SubSheetInfo {
 }
+_b = SubSheetInfo;
 SubSheetInfo.info_sheet_name = 'main';
 SubSheetInfo.total_formula = [[`=COUNTA(INDIRECT("A2:A201"))`]];
 SubSheetInfo.column_names = ['Questions', 'Choices', 'Answers', 'Wrong Answers', 'Total'];
@@ -67,41 +68,47 @@ SubSheetInfo.BACKEND_COLUMNS = {
     'answer': 'Y',
     'wrong_answer': 'Z',
 };
+SubSheetInfo.answer_formula = [[
+        `=GETANSWER(${_b.BACKEND_COLUMNS.choice}_, ${_b.BACKEND_COLUMNS.choice_id}_, ${_b.BACKEND_COLUMNS.answer}_)`
+    ]];
+SubSheetInfo.wrong_answer_formula = [[
+        `=GETANSWER(${_b.BACKEND_COLUMNS.choice}_, ${_b.BACKEND_COLUMNS.choice_id}_, ${_b.BACKEND_COLUMNS.wrong_answer}_)`
+    ]];
 class UrlInfo {
     static update() {
-        __classPrivateFieldSet(this, _b, window.location.href, "f", _UrlInfo_url);
-        __classPrivateFieldSet(this, _b, __classPrivateFieldGet(this, _b, "m", _UrlInfo_extract_base_url).call(this, __classPrivateFieldGet(this, _b, "f", _UrlInfo_url)), "f", _UrlInfo_base_url);
-        __classPrivateFieldSet(this, _b, __classPrivateFieldGet(this, _b, "m", _UrlInfo_extract_course_id).call(this, __classPrivateFieldGet(this, _b, "f", _UrlInfo_url)), "f", _UrlInfo_course_id);
-        __classPrivateFieldSet(this, _b, __classPrivateFieldGet(this, _b, "m", _UrlInfo_extract_FA_id).call(this, __classPrivateFieldGet(this, _b, "f", _UrlInfo_url)), "f", _UrlInfo_FA_id);
-        __classPrivateFieldSet(this, _b, __classPrivateFieldGet(this, _b, "m", _UrlInfo_extract_question_id).call(this, __classPrivateFieldGet(this, _b, "f", _UrlInfo_url)), "f", _UrlInfo_question_id);
+        __classPrivateFieldSet(this, _c, window.location.href, "f", _UrlInfo_url);
+        __classPrivateFieldSet(this, _c, __classPrivateFieldGet(this, _c, "m", _UrlInfo_extract_base_url).call(this, __classPrivateFieldGet(this, _c, "f", _UrlInfo_url)), "f", _UrlInfo_base_url);
+        __classPrivateFieldSet(this, _c, __classPrivateFieldGet(this, _c, "m", _UrlInfo_extract_course_id).call(this, __classPrivateFieldGet(this, _c, "f", _UrlInfo_url)), "f", _UrlInfo_course_id);
+        __classPrivateFieldSet(this, _c, __classPrivateFieldGet(this, _c, "m", _UrlInfo_extract_FA_id).call(this, __classPrivateFieldGet(this, _c, "f", _UrlInfo_url)), "f", _UrlInfo_FA_id);
+        __classPrivateFieldSet(this, _c, __classPrivateFieldGet(this, _c, "m", _UrlInfo_extract_question_id).call(this, __classPrivateFieldGet(this, _c, "f", _UrlInfo_url)), "f", _UrlInfo_question_id);
     }
     static updateWithDict(dict) {
-        __classPrivateFieldSet(this, _b, dict['url'], "f", _UrlInfo_url);
-        __classPrivateFieldSet(this, _b, dict['base_url'], "f", _UrlInfo_base_url);
-        __classPrivateFieldSet(this, _b, dict['course_id'], "f", _UrlInfo_course_id);
-        __classPrivateFieldSet(this, _b, dict['FA_id'], "f", _UrlInfo_FA_id);
-        __classPrivateFieldSet(this, _b, dict['question_id'], "f", _UrlInfo_question_id);
+        __classPrivateFieldSet(this, _c, dict['url'], "f", _UrlInfo_url);
+        __classPrivateFieldSet(this, _c, dict['base_url'], "f", _UrlInfo_base_url);
+        __classPrivateFieldSet(this, _c, dict['course_id'], "f", _UrlInfo_course_id);
+        __classPrivateFieldSet(this, _c, dict['FA_id'], "f", _UrlInfo_FA_id);
+        __classPrivateFieldSet(this, _c, dict['question_id'], "f", _UrlInfo_question_id);
     }
     static getValsAsArray() {
-        return [__classPrivateFieldGet(this, _b, "f", _UrlInfo_url), __classPrivateFieldGet(this, _b, "f", _UrlInfo_base_url), __classPrivateFieldGet(this, _b, "f", _UrlInfo_course_id), this.FAId, __classPrivateFieldGet(this, _b, "f", _UrlInfo_question_id)];
+        return [__classPrivateFieldGet(this, _c, "f", _UrlInfo_url), __classPrivateFieldGet(this, _c, "f", _UrlInfo_base_url), __classPrivateFieldGet(this, _c, "f", _UrlInfo_course_id), this.FAId, __classPrivateFieldGet(this, _c, "f", _UrlInfo_question_id)];
     }
     static get url() {
-        return __classPrivateFieldGet(this, _b, "f", _UrlInfo_url);
+        return __classPrivateFieldGet(this, _c, "f", _UrlInfo_url);
     }
     static get baseUrl() {
-        return __classPrivateFieldGet(this, _b, "f", _UrlInfo_base_url);
+        return __classPrivateFieldGet(this, _c, "f", _UrlInfo_base_url);
     }
     static get courseId() {
-        return __classPrivateFieldGet(this, _b, "f", _UrlInfo_course_id);
+        return __classPrivateFieldGet(this, _c, "f", _UrlInfo_course_id);
     }
     static get FAId() {
-        return __classPrivateFieldGet(this, _b, "f", _UrlInfo_FA_id);
+        return __classPrivateFieldGet(this, _c, "f", _UrlInfo_FA_id);
     }
     static get questionId() {
-        return __classPrivateFieldGet(this, _b, "f", _UrlInfo_question_id);
+        return __classPrivateFieldGet(this, _c, "f", _UrlInfo_question_id);
     }
 }
-_b = UrlInfo, _UrlInfo_extract_base_url = function _UrlInfo_extract_base_url(url) {
+_c = UrlInfo, _UrlInfo_extract_base_url = function _UrlInfo_extract_base_url(url) {
     const url_tokens = url.split('/');
     let result = `${url_tokens[0]}//${url_tokens[2]}/`;
     if (!result)
@@ -143,10 +150,10 @@ _UrlInfo_FA_id = { value: void 0 };
 _UrlInfo_question_id = { value: void 0 };
 _UrlInfo_url = { value: void 0 };
 (() => {
-    __classPrivateFieldSet(_b, _b, window.location.href, "f", _UrlInfo_url);
-    __classPrivateFieldSet(_b, _b, __classPrivateFieldGet(_b, _b, "m", _UrlInfo_extract_base_url).call(_b, __classPrivateFieldGet(_b, _b, "f", _UrlInfo_url)), "f", _UrlInfo_base_url);
-    __classPrivateFieldSet(_b, _b, __classPrivateFieldGet(_b, _b, "m", _UrlInfo_extract_course_id).call(_b, __classPrivateFieldGet(_b, _b, "f", _UrlInfo_url)), "f", _UrlInfo_course_id);
-    __classPrivateFieldSet(_b, _b, __classPrivateFieldGet(_b, _b, "m", _UrlInfo_extract_FA_id).call(_b, __classPrivateFieldGet(_b, _b, "f", _UrlInfo_url)), "f", _UrlInfo_FA_id);
-    __classPrivateFieldSet(_b, _b, __classPrivateFieldGet(_b, _b, "m", _UrlInfo_extract_question_id).call(_b, __classPrivateFieldGet(_b, _b, "f", _UrlInfo_url)), "f", _UrlInfo_question_id);
+    __classPrivateFieldSet(_c, _c, window.location.href, "f", _UrlInfo_url);
+    __classPrivateFieldSet(_c, _c, __classPrivateFieldGet(_c, _c, "m", _UrlInfo_extract_base_url).call(_c, __classPrivateFieldGet(_c, _c, "f", _UrlInfo_url)), "f", _UrlInfo_base_url);
+    __classPrivateFieldSet(_c, _c, __classPrivateFieldGet(_c, _c, "m", _UrlInfo_extract_course_id).call(_c, __classPrivateFieldGet(_c, _c, "f", _UrlInfo_url)), "f", _UrlInfo_course_id);
+    __classPrivateFieldSet(_c, _c, __classPrivateFieldGet(_c, _c, "m", _UrlInfo_extract_FA_id).call(_c, __classPrivateFieldGet(_c, _c, "f", _UrlInfo_url)), "f", _UrlInfo_FA_id);
+    __classPrivateFieldSet(_c, _c, __classPrivateFieldGet(_c, _c, "m", _UrlInfo_extract_question_id).call(_c, __classPrivateFieldGet(_c, _c, "f", _UrlInfo_url)), "f", _UrlInfo_question_id);
 })();
 //# sourceMappingURL=globals.js.map

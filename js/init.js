@@ -46,8 +46,18 @@ async function findQuestion(spreadsheet_id, sheet_name, question_id) {
         console.log('question not found');
         if (UrlInfo.questionId > table[index.index][0])
             ++index.index;
-        await SheetAPI.insertRow(spreadsheet_id, sheet_name, index.index + 1, Canvas.buildFrontendValues());
-        let range = computeRange(SubSheetInfo.BACKEND_COLUMNS.question_id, 1, SubSheetInfo.BACKEND_COLUMNS.wrong_answer, index.index + 1);
+        let row = index.index + 1;
+        await SheetAPI.insertRow(spreadsheet_id, sheet_name, row, Canvas.buildFrontendValues());
+        row++;
+        console.log('CELL OF FORMULA:', SubSheetInfo.COLUMNS.answer + row);
+        const ans_formula = SubSheetInfo.answer_formula[0][0].replaceAll('_', row.toString());
+        console.log(ans_formula);
+        console.log("Target cell:", SubSheetInfo.COLUMNS.answer + row);
+        await SheetAPI.writeFormula(spreadsheet_id, sheet_name, SubSheetInfo.COLUMNS.answer + row, [[ans_formula]]);
+        const wrong_ans_formula = SubSheetInfo.wrong_answer_formula[0][0].replaceAll('_', row.toString());
+        console.log(wrong_ans_formula);
+        await SheetAPI.writeFormula(spreadsheet_id, sheet_name, SubSheetInfo.COLUMNS.wrong_answer + row, [[wrong_ans_formula]]);
+        let range = computeRange(SubSheetInfo.BACKEND_COLUMNS.question_id, 1, SubSheetInfo.BACKEND_COLUMNS.wrong_answer, row - 1);
         console.log('range: ', range);
         console.log('backend values: ', [Canvas.buildBackendValues()]);
         await SheetAPI.write(spreadsheet_id, sheet_name, range, [Canvas.buildBackendValues()]);
