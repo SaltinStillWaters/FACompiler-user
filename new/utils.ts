@@ -1,5 +1,5 @@
 function sanitizeForURL(str: any) {
-    return str.replace(/[\/\?&=#%\"\'\\:<>\|\^\`\[\]]/g, '');
+    return str.replace(/[\/\?&=#%\"\'\\:<>\|\^\`\[\]]/g, '').trim();
 }
 
 function computeRange(columnStart: any, rowCount: number, columnEnd: any = '', rowStart: number = 1) {

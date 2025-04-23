@@ -4,8 +4,8 @@ const RENEWAL_KEYS = ['course_id', 'target_sheet_id', 'fa_id'];
     try {
         const local_data = await chrome.storage.local.get(RENEWAL_KEYS);
         if (local_data['course_id'] === UrlInfo.courseId && local_data['fa_id'] === UrlInfo.FAId) {
-            console.log('local_data is up to date');
             SheetInfo.overwriteTargetID(local_data['target_sheet_id']);
+            console.log('local_data is up to date');
         }
         else {
             console.log('needs update');

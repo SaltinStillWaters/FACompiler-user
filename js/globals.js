@@ -11,7 +11,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 var _a, _SheetInfo_target_id, _SheetInfo_info_sheet_name, _SheetInfo_folder_id, _SheetInfo_row_count, _b, _UrlInfo_base_url, _UrlInfo_course_id, _UrlInfo_FA_id, _UrlInfo_question_id, _UrlInfo_url, _UrlInfo_extract_base_url, _UrlInfo_extract_course_id, _UrlInfo_extract_FA_id, _UrlInfo_extract_question_id;
-let SPREADSHEET_ID = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
+let SPREADSHEET_ID = '1RdjbRszhptQ2SbSdsgzwK8Amdvn-m6MdpMQi_TOo9Ck';
 class SheetInfo {
     static async extractInfoSheetCount() {
         let count = await SheetAPI.read(this.MAIN_SHEET_ID, this.infoSheetName, this.COLUMNS['total']);
@@ -32,7 +32,7 @@ class SheetInfo {
     }
 }
 _a = SheetInfo;
-SheetInfo.MAIN_SHEET_ID = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
+SheetInfo.MAIN_SHEET_ID = '1RdjbRszhptQ2SbSdsgzwK8Amdvn-m6MdpMQi_TOo9Ck';
 SheetInfo.KEYS = ['target_sheet_id'];
 _SheetInfo_target_id = { value: void 0 };
 _SheetInfo_info_sheet_name = { value: 'main' };

@@ -480,6 +480,7 @@ function checkSheetExists(token, spreadsheetID, sheetName) {
     .then(response => response.json())
     .then(data => {
       const sheets = data.sheets;
+      console.log('>>',sheets)
       let exists = false;
 
       for (let sheet of sheets) {

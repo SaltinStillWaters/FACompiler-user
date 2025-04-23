@@ -1,6 +1,6 @@
 "use strict";
 function sanitizeForURL(str) {
-    return str.replace(/[\/\?&=#%\"\'\\:<>\|\^\`\[\]]/g, '');
+    return str.replace(/[\/\?&=#%\"\'\\:<>\|\^\`\[\]]/g, '').trim();
 }
 function computeRange(columnStart, rowCount, columnEnd = '', rowStart = 1) {
     if (!columnEnd) {
