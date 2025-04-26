@@ -25,7 +25,6 @@ class Canvas {
             throw new Error("'FANumber' not found or empty");
         }
         this.fa_number = sanitizeForURL(FANumber);
-        console.log(this.fa_number);
     }
     static extractQuestion() {
         const questionElement = document.querySelector('.display_question');
@@ -42,7 +41,6 @@ class Canvas {
         if (!result)
             throw new Error('No question found');
         Canvas.question = result;
-        console.log(result);
     }
     static extractChoices() {
         const answerElements = document.querySelectorAll('.answer');
@@ -56,7 +54,6 @@ class Canvas {
         if (!result)
             throw new Error('No choices found');
         Canvas.raw_choices = result;
-        console.log(result);
     }
 }
 //# sourceMappingURL=canvas.js.map

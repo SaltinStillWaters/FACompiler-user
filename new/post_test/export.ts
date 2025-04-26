@@ -21,10 +21,9 @@ class Export {
     }
 
     static async processSubmissions() {
-        console.log('Exporting');
+        showToast('Extracting data...', '#bfc2bf', 5000);
         const submissions = await this.getSubmissions(UrlInfo_POST.courseId, UrlInfo_POST.FAId, UrlInfo_POST.baseUrl);
-        console.log('done export');
-
+        showToast('Done extracting', '#7af599', 5000);
         const element = document.getElementById("quiz_title");
         let fa_number = '';
         if (element) {
@@ -39,14 +38,12 @@ class Export {
 
         const range = computeRange_POST(SubSheetInfo_POST.BACKEND_COLUMNS.question_id, row_count, SubSheetInfo_POST.BACKEND_COLUMNS.wrong_answer);
         const table = await SheetAPI_POST.read(SheetInfo_POST.targetID, fa_number, range);
-        console.log(table);
 
         let api_input: {range: string, vals: string[][]}[] = [];
 
         for (const submission of submissions) {
             for (const data of submission.submission_data) {
                 if (!data.answer_id) {
-                    console.log('skipping data');
                     continue;
                 }
 
@@ -77,11 +74,11 @@ class Export {
                 }
             }
         }
-        console.log(api_input)
-        console.log('writing to sheets')
-        await SheetAPI_POST.writeVals(SheetInfo_POST.targetID, fa_number, api_input);
-        console.log('done');
-
+        
+        showToast('Updating sheets...', '#bfc2bf', 5000);
+        await SheetAPI_POST.writeVals(SheetInfo_POST.targetID, fa_number, api_input);        
+        showToast('Finished exporting!!', '#7af599', 10000);
+        return;
     }
 
     static columnToLetter(colIndex: number) {

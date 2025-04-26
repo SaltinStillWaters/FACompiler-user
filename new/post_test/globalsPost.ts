@@ -162,12 +162,9 @@ class UrlInfo_POST {
                         result = temp.split('_')[1];    
                 }
             } catch {
-                throw new Error('>> question_id could not be found here');
+                // throw new Error('>> question_id could not be found here');
             }
         }
-        
-        if (!result)
-            throw new Error('>> question_id could not be found');
         
         return result;
     }

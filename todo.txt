@@ -1,3 +1,4 @@
 remove console.logs
 add floating messages
+SA checker
 obsfucate code

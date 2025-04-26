@@ -34,7 +34,6 @@ class Canvas {
         }
 
         this.fa_number = sanitizeForURL(FANumber);
-        console.log(this.fa_number);
     }
 
     static extractQuestion() {
@@ -57,7 +56,6 @@ class Canvas {
             throw new Error('No question found');
 
         Canvas.question = result;
-        console.log(result)
     }
 
     static extractChoices() {
@@ -78,6 +76,5 @@ class Canvas {
             throw new Error('No choices found');
 
         Canvas.raw_choices = result;
-        console.log(result);
     }
 }

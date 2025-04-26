@@ -148,7 +148,6 @@ class SheetAPI {
     }
 
     static checkIfExists(spreadsheetID: any, sheetName: any): Promise<any> {
-        console.log('sheet started')
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage(
                 {

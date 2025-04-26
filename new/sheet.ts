@@ -20,11 +20,7 @@ class Sheet {
     }
 
     static async createSheet(spreadsheet_id: any, sheet_name: any) {
-        console.log('creating sheet...')
-        console.log(spreadsheet_id, sheet_name)
-
         const is_created = await SheetAPI.create(spreadsheet_id, sheet_name)
-        console.log('is created: ', is_created);
         if (is_created) {
             await this.initSheet(spreadsheet_id, sheet_name);
         }
@@ -32,17 +28,12 @@ class Sheet {
 
     static async initSheet(spreadsheet_id: any, sheet_name: any) {
         await SheetAPI.insertRow(spreadsheet_id, sheet_name, 0, SubSheetInfo.column_names)
-        console.log('done insert row');
         
         await SheetAPI.writeFormula(spreadsheet_id, sheet_name, SubSheetInfo.COLUMNS.total, SubSheetInfo.total_formula);
-        console.log('done write formula');
 
         let range = computeRange(SubSheetInfo.BACKEND_COLUMNS.question_id, 1, SubSheetInfo.BACKEND_COLUMNS.wrong_answer, 0);
-        console.log(range);
         await SheetAPI.write(spreadsheet_id, sheet_name, range, [SubSheetInfo.back_end_column_names]);
 
         await SheetAPI.updateColSize(spreadsheet_id, sheet_name, SubSheetInfo.col_index_widths);
-        
-        console.log('done init');
     }
 }

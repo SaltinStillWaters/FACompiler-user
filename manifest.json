@@ -30,12 +30,12 @@
     "content_scripts": [
         {
             "matches": ["https://feu.instructure.com/courses/*take*"],
-            "js": ["js/sheetAPI.js", "js/utils.js", "js/sheet.js", "js/globals.js", "js/init.js", "js/canvas.js"]
+            "js": ["js/toast.js", "js/sheetAPI.js", "js/utils.js", "js/sheet.js", "js/globals.js", "js/init.js", "js/canvas.js"]
         },
         {
             "matches": ["https://feu.instructure.com/courses/*"],
             "exclude_matches": ["https://feu.instructure.com/courses/*take*"],
-            "js": ["js/post_test/utilsPost.js", "js/post_test/globalsPost.js", "js/post_test/sheetAPIPost.js", "js/post_test/sheetPost.js", "js/post_test/initPost.js", "js/post_test/export.js"]
+            "js": ["js/toast.js", "js/post_test/utilsPost.js", "js/post_test/globalsPost.js", "js/post_test/sheetAPIPost.js", "js/post_test/sheetPost.js", "js/post_test/initPost.js", "js/post_test/export.js"]
         }
     ]
 }

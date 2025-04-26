@@ -129,11 +129,8 @@ _b = UrlInfo_POST, _UrlInfo_POST_extract_base_url = function _UrlInfo_POST_extra
             }
         }
         catch {
-            throw new Error('>> question_id could not be found here');
         }
     }
-    if (!result)
-        throw new Error('>> question_id could not be found');
     return result;
 };
 UrlInfo_POST.KEYS = ['url', 'base_url', 'course_id', 'FA_id', 'question_id'];
