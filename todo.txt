@@ -1,4 +1,1 @@
-remove console.logs
-add floating messages
-SA checker
-obsfucate code
+finish sa checker in mid_test/init.ts
