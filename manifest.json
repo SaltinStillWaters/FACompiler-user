@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "FACompiler",
-    "version": "1.1.0",
-    "description": "Uses service account. Suitable for multiple users. Sheet Names are now changeable",
+    "version": "2.0.0",
+    "description": "Now a standalone application",
 
     "permissions": [
         "activeTab",
@@ -30,12 +30,12 @@
     "content_scripts": [
         {
             "matches": ["https://feu.instructure.com/courses/*take*"],
-            "js": ["js/toast.js", "js/mid_test/sheetAPI.js", "js/mid_test/utils.js", "js/mid_test/sheet.js", "js/mid_test/globals.js", "js/mid_test/init.js", "js/mid_test/canvas.js"]
+            "js": ["dist/toast.js", "dist/mid_test/sheetAPI.js", "dist/mid_test/utils.js", "dist/mid_test/sheet.js", "dist/mid_test/globals.js", "dist/mid_test/init.js", "dist/mid_test/canvas.js"]
         },
         {
             "matches": ["https://feu.instructure.com/courses/*"],
             "exclude_matches": ["https://feu.instructure.com/courses/*take*"],
-            "js": ["js/toast.js", "js/post_test/utilsPost.js", "js/post_test/globalsPost.js", "js/post_test/sheetAPIPost.js", "js/post_test/sheetPost.js", "js/post_test/initPost.js", "js/post_test/export.js"]
+            "js": ["dist/toast.js", "dist/post_test/utilsPost.js", "dist/post_test/globalsPost.js", "dist/post_test/sheetAPIPost.js", "dist/post_test/sheetPost.js", "dist/post_test/initPost.js", "dist/post_test/export.js"]
         }
     ]
 }
