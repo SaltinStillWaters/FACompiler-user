@@ -1,7 +1,7 @@
-let SPREADSHEET_ID_POST: string = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
+let SPREADSHEET_ID_POST: string = '1RdjbRszhptQ2SbSdsgzwK8Amdvn-m6MdpMQi_TOo9Ck';
 
 class SheetInfo_POST {
-    static readonly MAIN_SHEET_ID: string = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
+    static readonly MAIN_SHEET_ID: string = '1RdjbRszhptQ2SbSdsgzwK8Amdvn-m6MdpMQi_TOo9Ck';
     static readonly KEYS: string[] = ['target_sheet_id'];
     static #target_id: string;
     static #info_sheet_name: string = 'main';

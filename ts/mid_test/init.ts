@@ -3,7 +3,13 @@ const RENEWAL_KEYS = ['course_id', 'target_sheet_id', 'fa_id'];
 (async () => {
 try {
     const local_data = await chrome.storage.local.get(RENEWAL_KEYS)
-    
+
+    const version_matches = await checkVersion() //override default argument if version changes
+    if (!version_matches) { 
+        showToast('Your FACompiler version is out of date. Please update!');
+        return
+    }
+
     //need this at top to check if FA is actually an SA
     Canvas.extractFANumber();
     
@@ -26,7 +32,14 @@ try {
     showToast("Error. Pls try again") 
 }
 })();
+
+async function checkVersion(curr_version: string = '2.0') {
+    let sheetVersion = await SheetAPI.read(SheetInfo.MAIN_SHEET_ID, SheetInfo.infoSheetName, 'h1')
+    sheetVersion = sheetVersion[0][0]
     
+    return sheetVersion.trim() === curr_version.trim();
+}
+
 function checkIfSA(): boolean {
     const invalids = ['sa', 'summative', 's([^a-zA-Z])\\d', 's\\d', 'midterm', 'me', 'final', 'fe'];
     const regex = new RegExp(invalids.join('|'))

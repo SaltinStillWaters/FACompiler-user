@@ -3,6 +3,11 @@ const RENEWAL_KEYS = ['course_id', 'target_sheet_id', 'fa_id'];
 (async () => {
     try {
         const local_data = await chrome.storage.local.get(RENEWAL_KEYS);
+        const version_matches = await checkVersion();
+        if (!version_matches) {
+            showToast('Your FACompiler version is out of date. Please update!');
+            return;
+        }
         Canvas.extractFANumber();
         if (local_data['course_id'] === UrlInfo.courseId && local_data['fa_id'] === UrlInfo.FAId) {
             SheetInfo.overwriteTargetID(local_data['target_sheet_id']);
@@ -22,6 +27,11 @@ const RENEWAL_KEYS = ['course_id', 'target_sheet_id', 'fa_id'];
         showToast("Error. Pls try again");
     }
 })();
+async function checkVersion(curr_version = '2.0') {
+    let sheetVersion = await SheetAPI.read(SheetInfo.MAIN_SHEET_ID, SheetInfo.infoSheetName, 'h1');
+    sheetVersion = sheetVersion[0][0];
+    return sheetVersion.trim() === curr_version.trim();
+}
 function checkIfSA() {
     const invalids = ['sa', 'summative', 's([^a-zA-Z])\\d', 's\\d', 'midterm', 'me', 'final', 'fe'];
     const regex = new RegExp(invalids.join('|'));

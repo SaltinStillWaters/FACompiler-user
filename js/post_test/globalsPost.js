@@ -11,7 +11,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 var _a, _SheetInfo_POST_target_id, _SheetInfo_POST_info_sheet_name, _SheetInfo_POST_folder_id, _SheetInfo_POST_row_count, _b, _UrlInfo_POST_base_url, _UrlInfo_POST_course_id, _UrlInfo_POST_FA_id, _UrlInfo_POST_question_id, _UrlInfo_POST_url, _UrlInfo_POST_extract_base_url, _UrlInfo_POST_extract_course_id, _UrlInfo_POST_extract_FA_id, _UrlInfo_POST_extract_question_id;
-let SPREADSHEET_ID_POST = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
+let SPREADSHEET_ID_POST = '1RdjbRszhptQ2SbSdsgzwK8Amdvn-m6MdpMQi_TOo9Ck';
 class SheetInfo_POST {
     static async extractInfoSheetCount() {
         let count = await SheetAPI_POST.read(this.MAIN_SHEET_ID, this.infoSheetName, this.COLUMNS['total']);
@@ -32,7 +32,7 @@ class SheetInfo_POST {
     }
 }
 _a = SheetInfo_POST;
-SheetInfo_POST.MAIN_SHEET_ID = '15Pi3Atd2kAlFCFR2Rcs4bGrjOkxMok_nCVGSfVTIuLQ';
+SheetInfo_POST.MAIN_SHEET_ID = '1RdjbRszhptQ2SbSdsgzwK8Amdvn-m6MdpMQi_TOo9Ck';
 SheetInfo_POST.KEYS = ['target_sheet_id'];
 _SheetInfo_POST_target_id = { value: void 0 };
 _SheetInfo_POST_info_sheet_name = { value: 'main' };
