@@ -6,10 +6,13 @@ try {
     
     //need this at top to check if FA is actually an SA
     Canvas.extractFANumber();
-
+    
     if (local_data['course_id'] === UrlInfo.courseId && local_data['fa_id'] === UrlInfo.FAId) {
         SheetInfo.overwriteTargetID(local_data['target_sheet_id']);
     } else {
+        if (checkIfSA()) {
+            return
+        }
 
         await updateLocalData();
     }
@@ -25,8 +28,10 @@ try {
 })();
     
 function checkIfSA(): boolean {
-    const invalids = ['sa', 'summative', 's([^a-zA-Z]?)\d'];
-    
+    const invalids = ['sa', 'summative', 's([^a-zA-Z])\\d', 's\\d', 'midterm', 'me', 'final', 'fe'];
+    const regex = new RegExp(invalids.join('|'))
+
+    return regex.test(Canvas.fa_number.toLowerCase())
 }
 
 async function updateLocalData(): Promise<void> {

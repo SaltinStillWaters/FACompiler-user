@@ -3,15 +3,20 @@ const RENEWAL_KEYS = ['course_id', 'target_sheet_id', 'fa_id'];
 (async () => {
     try {
         const local_data = await chrome.storage.local.get(RENEWAL_KEYS);
+        Canvas.extractFANumber();
         if (local_data['course_id'] === UrlInfo.courseId && local_data['fa_id'] === UrlInfo.FAId) {
             SheetInfo.overwriteTargetID(local_data['target_sheet_id']);
         }
         else {
+            if (checkIfSA()) {
+                console.log('ending');
+                return;
+            }
+            console.log('not');
             await updateLocalData();
         }
         Canvas.extractChoices();
         Canvas.extractQuestion();
-        Canvas.extractFANumber();
         await Sheet.createSheet(SheetInfo.targetID, Canvas.fa_number);
         await findQuestion(SheetInfo.targetID, Canvas.fa_number, UrlInfo.questionId);
     }
@@ -19,6 +24,11 @@ const RENEWAL_KEYS = ['course_id', 'target_sheet_id', 'fa_id'];
         showToast("Error. Pls try again");
     }
 })();
+function checkIfSA() {
+    const invalids = ['sa', 'summative', 's([^a-zA-Z])\\d', 's\\d', 'midterm', 'me', 'final', 'fe'];
+    const regex = new RegExp(invalids.join('|'));
+    return regex.test(Canvas.fa_number.toLowerCase());
+}
 async function updateLocalData() {
     let dict = {};
     await SheetInfo.extractTargetID();
