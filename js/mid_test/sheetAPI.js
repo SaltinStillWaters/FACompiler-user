@@ -18,6 +18,23 @@ class SheetAPI {
             });
         });
     }
+    static wrapContentAll(spreadsheetID, sheetName) {
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({
+                action: 'wrapContentAll',
+                spreadsheetID: spreadsheetID,
+                sheetName: sheetName
+            }, (response) => {
+                if (response.error) {
+                    console.error(response.error);
+                    reject(response.error);
+                }
+                else {
+                    resolve(response.result);
+                }
+            });
+        });
+    }
     static create(spreadsheetID, sheetName) {
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage({

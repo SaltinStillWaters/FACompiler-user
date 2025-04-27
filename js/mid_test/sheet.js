@@ -22,6 +22,7 @@ class Sheet {
         }
     }
     static async initSheet(spreadsheet_id, sheet_name) {
+        await SheetAPI.wrapContentAll(spreadsheet_id, sheet_name);
         await SheetAPI.insertRow(spreadsheet_id, sheet_name, 0, SubSheetInfo.column_names);
         await SheetAPI.writeFormula(spreadsheet_id, sheet_name, SubSheetInfo.COLUMNS.total, SubSheetInfo.total_formula);
         let range = computeRange(SubSheetInfo.BACKEND_COLUMNS.question_id, 1, SubSheetInfo.BACKEND_COLUMNS.wrong_answer, 0);

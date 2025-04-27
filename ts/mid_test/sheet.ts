@@ -27,6 +27,7 @@ class Sheet {
     }
 
     static async initSheet(spreadsheet_id: any, sheet_name: any) {
+        await SheetAPI.wrapContentAll(spreadsheet_id, sheet_name);
         await SheetAPI.insertRow(spreadsheet_id, sheet_name, 0, SubSheetInfo.column_names)
         
         await SheetAPI.writeFormula(spreadsheet_id, sheet_name, SubSheetInfo.COLUMNS.total, SubSheetInfo.total_formula);

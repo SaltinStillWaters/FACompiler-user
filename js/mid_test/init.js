@@ -9,10 +9,8 @@ const RENEWAL_KEYS = ['course_id', 'target_sheet_id', 'fa_id'];
         }
         else {
             if (checkIfSA()) {
-                console.log('ending');
                 return;
             }
-            console.log('not');
             await updateLocalData();
         }
         Canvas.extractChoices();

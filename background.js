@@ -103,8 +103,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.action === 'activateExport') {
         const response = await activateExport(token, request.spreadsheetID, request.sheetName);
         sendResponse({exists: response});
-      }
-      else if (request.action === 'checkSheetExists') {
+      } else if (request.action === 'checkSheetExists') {
         const response = await checkSheetExists(token, request.spreadsheetID, request.sheetName);
         sendResponse({exists: response});
       } else if (request.action === 'createSheet') {
@@ -116,6 +115,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
 
         sendResponse({result: response});
+      } else if (request.action === 'wrapContentAll') {
+        const sheetID = await getSheetID(token, request.spreadsheetID, request.sheetName);
+        const response = await wrapContentAll(token, request.spreadsheetID, sheetID);
+        sendResponse({result: response})
       } else if (request.action === 'readFromSheet') { //test here
         const response = await readFromSheet(token, request.spreadsheetID, request.sheetName, request.range);
         sendResponse({result: response});
@@ -236,6 +239,41 @@ function updateColSize(token, spreadsheetID, sheetId, colIndexWidths) {
     return data;
   });
 }
+
+function wrapContentAll(token, spreadsheetID, sheetID) {
+  const requests = [
+  {
+    repeatCell: {
+      range: {
+        sheetId: sheetID
+      },
+      cell: {
+        userEnteredFormat: {
+          wrapStrategy: "WRAP"
+        }
+      },
+      fields: "userEnteredFormat.wrapStrategy"
+    }
+  }
+  ];
+
+  return fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetID}:batchUpdate`, {
+    method: 'POST',
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({requests})
+  })
+  .then(response => response.json())
+  .then(data =>{
+    if (data.error) {
+      throw new Error(data.error.message);
+    }
+    return data
+  });
+}
+
 function insertRowToSheet(token, spreadsheetID, sheetId, rowIndex, rowData) {
   const requestBody =
   {
