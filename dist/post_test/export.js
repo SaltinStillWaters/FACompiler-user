@@ -34,6 +34,7 @@ class Export {
         const row_count = count[0][0];
         const range = computeRange_POST(SubSheetInfo_POST.BACKEND_COLUMNS.question_id, row_count, SubSheetInfo_POST.BACKEND_COLUMNS.wrong_answer);
         const table = await SheetAPI_POST.read(SheetInfo_POST.targetID, fa_number, range);
+        console.log('table:', table);
         let api_input = [];
         for (const submission of submissions) {
             for (const data of submission.submission_data) {
@@ -50,25 +51,71 @@ class Export {
                 }
                 let index = binarySearch_POST(table, data.question_id);
                 if (index.isFound) {
-                    if (table[index.index][4]) {
-                        continue;
+                    console.log('wrong_answer', wrong_answer);
+                    console.log('correct_answer', correct_answer);
+                    let sheet_corrects = EOFSplitter(table[index.index][3]);
+                    let sheet_wrongs = EOFSplitter(table[index.index][4]);
+                    console.log('sheet_corrects', sheet_corrects);
+                    console.log('sheet_wrongs', sheet_wrongs);
+                    if (correct_answer && !sheet_corrects?.includes(correct_answer)) {
+                        console.log('pushed correct:', correct_answer);
+                        sheet_corrects?.push(correct_answer);
                     }
-                    if (table[index.index][3]) {
-                        wrong_answer = table[index.index][3] + '**EOF**' + wrong_answer;
+                    if (wrong_answer && !sheet_wrongs?.includes(wrong_answer)) {
+                        console.log('pushed wrong', wrong_answer);
+                        sheet_wrongs?.push(wrong_answer);
                     }
+                    let corrects = EOFJoiner(sheet_corrects);
+                    let wrongs = EOFJoiner(sheet_wrongs);
+                    console.log('corrects', corrects);
+                    console.log('wrongs', wrongs);
+                    corrects = corrects ? corrects : '';
+                    wrongs = wrongs ? wrongs : '';
+                    console.log('final corrects', corrects);
+                    console.log('final wrongs', wrongs);
                     let range = 'Y' + (index.index + 2) + ':Z' + (index.index + 2);
                     api_input.push({
                         range: range,
-                        vals: [[correct_answer, wrong_answer]]
+                        vals: [[corrects, wrongs]]
                     });
+                    console.log('===============================================');
                 }
             }
         }
+        console.log(api_input);
+        api_input = this.mergeRanges(api_input);
         console.log(api_input);
         showToast('Updating sheets...', '#bfc2bf', 5000);
         await SheetAPI_POST.writeVals(SheetInfo_POST.targetID, fa_number, api_input);
         showToast('Finished exporting!!', '#7af599', 10000);
         return;
+    }
+    static mergeRanges(inputs) {
+        const merged = {};
+        for (const input of inputs) {
+            const range = input.range;
+            const correct = input.vals[0][0];
+            const wrong = input.vals[0][1];
+            if (!merged[range]) {
+                merged[range] = { corrects: [], wrongs: [] };
+            }
+            if (correct) {
+                merged[range].corrects.push(...EOFSplitter(correct));
+            }
+            if (wrong) {
+                merged[range].wrongs.push(...EOFSplitter(wrong));
+            }
+        }
+        const output = [];
+        for (const range in merged) {
+            const corrects = Array.from(new Set(merged[range].corrects)).join('**EOF**');
+            const wrongs = Array.from(new Set(merged[range].wrongs)).join('**EOF**');
+            output.push({
+                range: range,
+                vals: [[corrects, wrongs]]
+            });
+        }
+        return output;
     }
     static columnToLetter(colIndex) {
         let letter = "";

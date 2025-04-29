@@ -2,6 +2,23 @@ function sanitizeForURL_POST(str: any) {
     return str.replace(/[\/\?&=#%\"\'\\:<>\|\^\`\[\]]/g, '');
 }
 
+function EOFJoiner(arr: string[] | undefined) {
+    if (!arr) {
+        return '';
+    }
+
+    return arr.join('**EOF**');
+}
+function EOFSplitter(str: string): string[] {
+    if (!str) {
+        return [];
+    }
+
+    const results = str.split('**EOF**').filter(x => x.trim() !== '');
+    return results;
+}
+
+
 function computeRange_POST(columnStart: any, rowCount: number, columnEnd: any = '', rowStart: number = 1) {
     if (!columnEnd) {
         columnEnd = columnStart;
