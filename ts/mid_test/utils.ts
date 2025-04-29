@@ -33,7 +33,6 @@ function binarySearch(arr: any, toFind: any, criteria: number = 0) {
 
         lastMid = mid;
 
-
         if (toFind > arrValue) {
 
             left = mid + 1;

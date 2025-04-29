@@ -74,7 +74,7 @@ class Export {
                 }
             }
         }
-        
+        console.log(api_input)
         showToast('Updating sheets...', '#bfc2bf', 5000);
         await SheetAPI_POST.writeVals(SheetInfo_POST.targetID, fa_number, api_input);        
         showToast('Finished exporting!!', '#7af599', 10000);

@@ -2,7 +2,6 @@ class Sheet {
     static async findSpreadSheetID(src_col_compare: any, src_col_get: any, row_count: number, src_spreadsheet_id: any, src_info_sheet_name: any, folder_id: any) {
         let range: any = computeRange(src_col_compare, row_count);
         let table = await SheetAPI.read(src_spreadsheet_id, src_info_sheet_name, range);
-        
         let index = binarySearch(table, UrlInfo.courseId);
         if (!index.isFound) {
             if (UrlInfo.courseId > table[index.index][0])

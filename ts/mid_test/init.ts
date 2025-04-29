@@ -41,7 +41,7 @@ async function checkVersion(curr_version: string = '2.0') {
 }
 
 function checkIfSA(): boolean {
-    const invalids = ['sa', 'summative', 's([^a-zA-Z])\\d', 's\\d', 'midterm', 'me', 'final', 'fe'];
+    const invalids = ['sa', 'summative', 's([^a-zA-Z])\\d', 's\\d', 'midterm', 'me\\d', 'me([^a-zA-Z])\\d', 'final', 'fe'];
     const regex = new RegExp(invalids.join('|'))
 
     return regex.test(Canvas.fa_number.toLowerCase())
