@@ -1,0 +1,18 @@
+{
+  "compact": true,
+  "identifierNamesGenerator": "hexadecimal",
+  "renameGlobals": false,
+  "selfDefending": false,
+  "stringArray": true,
+  "stringArrayThreshold": 1,
+  "stringArrayEncoding": ["base64"],
+  "stringArrayRotate": true,
+  "stringArrayShuffle": true,
+  "stringArrayWrappersType": "function",
+  "stringArrayWrappersCount": 2,
+  "stringArrayWrappersChainedCalls": true,
+  "controlFlowFlattening": false,
+  "deadCodeInjection": false,
+  "disableConsoleOutput": false,
+  "unicodeEscapeSequence": false
+}
