@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "FACompiler",
-    "version": "2.0.0",
-    "description": "Now a standalone application",
+    "version": "2.0.1",
+    "description": "Now a standalone application. Minor patch: resolved not getting the entire question",
 
     "permissions": [
         "activeTab",
